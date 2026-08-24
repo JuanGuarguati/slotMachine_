@@ -1,0 +1,41 @@
+#BlueJ class context
+#Sun Aug 23 21:35:07 COT 2026
+comment0.target=SlotMachine
+comment0.text=\r\n Simulador de M\u00E1quina Tragamonedas que coordina un conjunto de ruedas\r\n y sus s\u00EDmbolos asociados.\r\n Administra el estado visual en el Canvas, eval\u00FAa jugadas ganadoras (Jackpot)\r\n y notifica errores o eventos mediante ventanas modales seg\u00FAn el estado de visibilidad.\r\n \r\n @author Juan David Guarguati, Juan Pablo Suarez Rubiano\r\n @version 1.0 (2026-08)\r\n
+comment1.target=SlotMachine()
+comment1.text=\r\n Requisito 1\: Crear una m\u00E1quina tragamonedas.\r\n Prop\u00F3sito\: Inicializar una nueva m\u00E1quina sin ruedas y en modo invisible.\r\n Estado\: Instancia `wheels` vac\u00EDa, asigna `isVisible \= false` y establece `ok \= true`.\r\n
+comment10.target=void makeInvisible()
+comment10.text=\r\n Requisito 7b\: Hacer invisible el simulador.\r\n Prop\u00F3sito\: Ocultar la representaci\u00F3n gr\u00E1fica del simulador en el Canvas sin perder el estado.\r\n Estado\: Cambia `isVisible \= false`, oculta las figuras en pantalla y asigna `ok \= true`.\r\n
+comment11.target=void exit()
+comment11.text=\r\n Requisito 8\: Terminar el simulador.\r\n Prop\u00F3sito\: Cerrar la aplicaci\u00F3n y liberar los recursos gr\u00E1ficos.\r\n Estado\: Oculta el Canvas y finaliza la ejecuci\u00F3n de la JVM (`System.exit(0)`).\r\n
+comment12.target=boolean ok()
+comment12.text=\r\n Consulta de verificaci\u00F3n de estado de la \u00FAltima operaci\u00F3n.\r\n Prop\u00F3sito\: Permitir al usuario o pruebas unitarias conocer si la acci\u00F3n previa se realiz\u00F3 exitosamente.\r\n Estado\: No altera el estado interno de la m\u00E1quina.\r\n \r\n @return `true` si la \u00FAltima operaci\u00F3n fue exitosa; `false` si ocurri\u00F3 un error o la acci\u00F3n fue inv\u00E1lida.\r\n
+comment13.params=pos max
+comment13.target=int adjustPos(int, int)
+comment13.text=\r\n Ajusta un \u00EDndice ingresado por el usuario para garantizar que se mantenga dentro de los l\u00EDmites v\u00E1lidos.\r\n \r\n @param pos Posici\u00F3n solicitada por el usuario.\r\n @param max L\u00EDmite superior permitido.\r\n @return La posici\u00F3n ajustada (m\u00EDnimo 1, m\u00E1ximo `max`).\r\n
+comment14.target=void refreshVisibility()
+comment14.text=\r\n Redibuja en el Canvas los s\u00EDmbolos activos de cada rueda si la m\u00E1quina se encuentra visible.\r\n
+comment15.params=msg
+comment15.target=void notifyError(java.lang.String)
+comment15.text=\r\n Registra un error de operaci\u00F3n, actualizando la bandera de estado y mostrando\r\n una alerta emergente si la m\u00E1quina est\u00E1 visible.\r\n \r\n @param msg Mensaje descriptivo del error ocurrido.\r\n
+comment2.params=pos
+comment2.target=void addWheel(int)
+comment2.text=\r\n Requisito 2a\: Adicionar una rueda.\r\n Prop\u00F3sito\: Insertar una nueva rueda en la posici\u00F3n especificada recalculando la posici\u00F3n gr\u00E1fica X.\r\n Estado\: Incrementa la lista `wheels`. Si `pos` excede los l\u00EDmites, se ajusta autom\u00E1ticamente.\r\n Actualiza el Canvas si el simulador est\u00E1 visible y marca `ok \= true`.\r\n \r\n @param pos Posici\u00F3n de inserci\u00F3n deseada (base 1).\r\n
+comment3.params=pos
+comment3.target=void delWheel(int)
+comment3.text=\r\n Requisito 2b\: Eliminar una rueda.\r\n Prop\u00F3sito\: Remover la rueda ubicada en la posici\u00F3n indicada y ocultar su figura gr\u00E1fica.\r\n Estado\: Modifica la lista `wheels`. Si la m\u00E1quina est\u00E1 vac\u00EDa, falla asignando `ok \= false`.\r\n De lo contrario, remueve la rueda, oculta su s\u00EDmbolo y asigna `ok \= true`.\r\n \r\n @param pos Posici\u00F3n de la rueda a eliminar (base 1).\r\n
+comment4.params=pos color
+comment4.target=void addSymbol(int, java.lang.String)
+comment4.text=\r\n Requisito 3a\: Adicionar un s\u00EDmbolo.\r\n Prop\u00F3sito\: Insertar un s\u00EDmbolo del color dado en la misma posici\u00F3n de todas las ruedas existentes.\r\n Estado\: Modifica la secuencia interna de cada `Wheel`. Asigna `ok \= true` si existen ruedas,\r\n o `ok \= false` y despliega error si no hay ruedas registradas.\r\n \r\n @param pos Posici\u00F3n de inserci\u00F3n del s\u00EDmbolo en la rueda (base 1).\r\n @param color Nombre del color del s\u00EDmbolo en est\u00E1ndar CSS.\r\n
+comment5.params=symbol
+comment5.target=void delSymbol(java.lang.String)
+comment5.text=\r\n Requisito 3b\: Eliminar un s\u00EDmbolo por su color.\r\n Prop\u00F3sito\: Remover todas las instancias de un s\u00EDmbolo espec\u00EDfico en todas las ruedas.\r\n Estado\: Actualiza la lista de s\u00EDmbolos de cada `Wheel`. Marca `ok \= true` si la operaci\u00F3n\r\n se ejecuta sobre ruedas existentes, o `ok \= false` si la m\u00E1quina est\u00E1 vac\u00EDa.\r\n \r\n @param symbol Nombre del color del s\u00EDmbolo a remover.\r\n
+comment6.target=void spin()
+comment6.text=\r\n Requisito 4\: Girar las ruedas de la m\u00E1quina.\r\n Prop\u00F3sito\: Avanzar simult\u00E1neamente todas las ruedas al siguiente s\u00EDmbolo de su secuencia.\r\n Estado\: Cambia el s\u00EDmbolo activo en cada `Wheel`. Refresca la vista en el Canvas y asigna `ok \= true`.\r\n Si no hay ruedas, marca `ok \= false` y notifica el error.\r\n
+comment7.target=java.lang.String[] configuration()
+comment7.text=\r\n Requisito 5\: Consultar los s\u00EDmbolos visibles de la m\u00E1quina.\r\n Prop\u00F3sito\: Obtener una representaci\u00F3n en texto del estado actual visible de izquierda a derecha.\r\n Estado\: No modifica la estructura. Asigna `ok \= true`.\r\n \r\n @return Arreglo de `String` con los colores de los s\u00EDmbolos actualmente activos en cada rueda.\r\n
+comment8.target=boolean isjackpot()
+comment8.text=\r\n Requisito 6\: Consultar si la configuraci\u00F3n es la ganadora (Jackpot).\r\n Prop\u00F3sito\: Evaluar si todas las ruedas muestran simult\u00E1neamente el mismo s\u00EDmbolo (color).\r\n Estado\: Asigna `ok \= true` si la evaluaci\u00F3n es v\u00E1lida (al menos 2 ruedas con s\u00EDmbolos coincidentes).\r\n Si el simulador es visible y resulta ganador, despliega un mensaje emergente `JOptionPane`.\r\n \r\n @return `true` si todos los s\u00EDmbolos visibles coinciden; `false` en caso contrario o si hay menos de 2 ruedas.\r\n
+comment9.target=void makeVisible()
+comment9.text=\r\n Requisito 7a\: Hacer visible el simulador.\r\n Prop\u00F3sito\: Activar la representaci\u00F3n gr\u00E1fica de la m\u00E1quina y sus s\u00EDmbolos en el Canvas.\r\n Estado\: Cambia `isVisible \= true`, hace visibles los s\u00EDmbolos activos de las ruedas y asigna `ok \= true`.\r\n
+numComments=16

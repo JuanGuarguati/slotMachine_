@@ -1,0 +1,16 @@
+#BlueJ class context
+#Sun Aug 23 21:35:07 COT 2026
+comment0.target=Symbol
+comment0.text=\r\n Representa un s\u00EDmbolo individual dentro de las ruedas de la m\u00E1quina tragamonedas.\r\n Encapsula la informaci\u00F3n del color y gestiona la posici\u00F3n y visibilidad\r\n de la figura geom\u00E9trica (Rectangle) proyectada en el Canvas.\r\n \r\n @author Juan David Guarguati, Juan Pablo Suarez Rubiano\r\n @version 1.0 \r\n
+comment1.params=color x y
+comment1.target=Symbol(java.lang.String, int, int)
+comment1.text=\r\n Construye un nuevo s\u00EDmbolo con un color y una ubicaci\u00F3n de coordenadas espec\u00EDficas.\r\n Prop\u00F3sito\: Instanciar la figura geom\u00E9trica base, asignarle color y trasladarla\r\n a las coordenadas relativas dentro de la rueda.\r\n Estado\: Asigna `color`, establece `isVisible \= false` e inicializa y posiciona la figura `shape`.\r\n \r\n @param color Nombre del color para la figura en formato CSS.\r\n @param x Coordenada de destino en el eje horizontal (eje X).\r\n @param y Coordenada de destino en el eje vertical (eje Y).\r\n
+comment2.target=java.lang.String getColor()
+comment2.text=\r\n Consulta el color asignado a este s\u00EDmbolo.\r\n Prop\u00F3sito\: Permitir la verificaci\u00F3n de coincidencias de color en jugadas (Jackpot).\r\n Estado\: No modifica el estado interno.\r\n \r\n @return El nombre del color registrado.\r\n
+comment3.target=boolean isVisible()
+comment3.text=\r\n Consulta el estado actual de visibilidad del s\u00EDmbolo.\r\n Prop\u00F3sito\: Determinar si la figura est\u00E1 desplegada activamente en el Canvas.\r\n Estado\: No modifica el estado interno.\r\n \r\n @return `true` si la figura se dibuja en pantalla; `false` en caso contrario.\r\n
+comment4.target=void makeVisible()
+comment4.text=\r\n Dibuja la figura del s\u00EDmbolo en la pantalla gr\u00E1fica.\r\n Prop\u00F3sito\: Hacer visible la representaci\u00F3n geom\u00E9trica en el Canvas cuando la rueda lo activa.\r\n Estado\: Cambia `isVisible \= true` y ejecuta el redibujado de la figura `shape`.\r\n
+comment5.target=void makeInvisible()
+comment5.text=\r\n Oculta la figura del s\u00EDmbolo de la pantalla gr\u00E1fica.\r\n Prop\u00F3sito\: Borrar del Canvas la figura cuando la rueda gira o el simulador pasa a modo invisible.\r\n Estado\: Cambia `isVisible \= false` y borra la figura `shape` de la vista.\r\n
+numComments=6
