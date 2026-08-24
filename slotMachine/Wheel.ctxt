@@ -1,0 +1,22 @@
+#BlueJ class context
+#Sun Aug 23 21:35:07 COT 2026
+comment0.target=Wheel
+comment0.text=\r\n Representa una rueda dentro de la m\u00E1quina tragamonedas.\r\n Almacena una secuencia ordenada de s\u00EDmbolos, gestiona el s\u00EDmbolo activo visible\r\n y controla el desplazamiento en el Canvas mediante su posici\u00F3n horizontal.\r\n \r\n @author Juan David Guarguati, Juan Pablo Suarez Rubiano\r\n @version 1.0\r\n
+comment1.params=xPosition
+comment1.target=Wheel(int)
+comment1.text=\r\n Construye una nueva rueda vac\u00EDa en una coordenada horizontal espec\u00EDfica.\r\n Prop\u00F3sito\: Inicializar la rueda sin s\u00EDmbolos y establecer el punto base en pantalla.\r\n Estado\: `symbols` queda vac\u00EDo y `visibleSymbolIndex` inicia en 0.\r\n \r\n @param xPosition Posici\u00F3n horizontal (eje X) dentro del Canvas.\r\n
+comment2.params=pos color
+comment2.target=void addSymbol(int, java.lang.String)
+comment2.text=\r\n Inserta un nuevo s\u00EDmbolo en la posici\u00F3n deseada dentro de la rueda.\r\n Prop\u00F3sito\: Permitir la adici\u00F3n de figuras/colores respetando los l\u00EDmites de inserci\u00F3n.\r\n Estado\: Incrementa el tama\u00F1o de `symbols`. Ajusta posiciones menores o iguales a 1 \r\n al inicio, y posiciones mayores al tama\u00F1o al final de la lista.\r\n \r\n @param pos Posici\u00F3n de inserci\u00F3n deseada (base 1).\r\n @param color Nombre del color del s\u00EDmbolo en est\u00E1ndar CSS.\r\n
+comment3.params=symbolColor
+comment3.target=void delSymbol(java.lang.String)
+comment3.text=\r\n Elimina todas las apariciones de un s\u00EDmbolo que coincidan con el color especificado.\r\n Prop\u00F3sito\: Limpiar o reconfigurar la secuencia de s\u00EDmbolos de la rueda.\r\n Estado\: Modifica la lista `symbols`. Si el \u00EDndice visible queda fuera de rango \r\n tras la eliminaci\u00F3n, reinicia `visibleSymbolIndex` a 0 para prevenir un `IndexOutOfBoundsException`.\r\n \r\n @param symbolColor Nombre del color del s\u00EDmbolo que se desea remover.\r\n
+comment4.target=void spin()
+comment4.text=\r\n Avanza de forma circular al siguiente s\u00EDmbolo de la rueda.\r\n Prop\u00F3sito\: Simular la rotaci\u00F3n de la rueda cambiando el s\u00EDmbolo activo.\r\n Estado\: Oculta visualmente el s\u00EDmbolo actual, actualiza `visibleSymbolIndex` \r\n mediante la operaci\u00F3n m\u00F3dulo para reiniciar el ciclo al llegar al final.\r\n
+comment5.target=Symbol getVisibleSymbol()
+comment5.text=\r\n Consulta el s\u00EDmbolo que se encuentra actualmente al frente o visible en la rueda.\r\n Prop\u00F3sito\: Proporcionar acceso al estado actual de la rueda sin alterar su estructura.\r\n Estado\: No modifica el estado interno.\r\n \r\n @return El objeto `Symbol` en la posici\u00F3n actual, o `null` si la rueda no tiene s\u00EDmbolos.\r\n
+comment6.target=java.util.ArrayList getSymbols()
+comment6.text=\r\n Obtiene la colecci\u00F3n completa de s\u00EDmbolos almacenados en la rueda.\r\n Prop\u00F3sito\: Permitir lecturas o validaciones sobre toda la secuencia.\r\n Estado\: No modifica el estado interno.\r\n \r\n @return Lista con los s\u00EDmbolos de la rueda.\r\n
+comment7.target=int getXPosition()
+comment7.text=\r\n Consulta la coordenada X asignada a la rueda.\r\n Prop\u00F3sito\: Conocer la ubicaci\u00F3n gr\u00E1fica de la rueda en el Canvas.\r\n Estado\: No modifica el estado interno.\r\n \r\n @return Posici\u00F3n horizontal entera.\r\n
+numComments=8
