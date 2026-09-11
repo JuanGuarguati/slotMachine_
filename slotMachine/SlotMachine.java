@@ -1,39 +1,31 @@
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
- * Simulador de Máquina Tragamonedas que coordina un conjunto de ruedas
- * y sus símbolos asociados.
- * Administra el estado visual en el Canvas, evalúa jugadas ganadoras (Jackpot)
- * y notifica errores o eventos mediante ventanas modales según el estado de visibilidad.
+ * Simulador de Máquina Tragamonedas ajustado estrictamente a los 11 métodos
+ * asociados a los 8 Requisitos Funcionales del laboratorio.
  * 
- * @author Juan David Guarguati, Juan Pablo Suarez Rubiano
  * @version 1.0 (2026-08)
  */
 public class SlotMachine {
-    
-    private ArrayList<Wheel> wheels;    
-    private boolean isVisible;    
+    private ArrayList<Wheel> wheels;
+    private boolean isVisible;
     private boolean ok;
 
     /**
-     * Requisito 1: Crear una máquina tragamonedas.
-     * Propósito: Inicializar una nueva máquina sin ruedas y en modo invisible.
-     * Estado: Instancia `wheels` vacía, asigna `isVisible = false` y establece `ok = true`.
+     * 1. Requisito 1: Crear una máquina tragamonedas.
      */
     public SlotMachine() {
         this.wheels = new ArrayList<>();
         this.isVisible = false;
         this.ok = true;
     }
-
+        
     /**
-     * Requisito 2a: Adicionar una rueda.
-     * Propósito: Insertar una nueva rueda en la posición especificada recalculando la posición gráfica X.
-     * Estado: Incrementa la lista `wheels`. Si `pos` excede los límites, se ajusta automáticamente.
-     * Actualiza el Canvas si el simulador está visible y marca `ok = true`.
-     * 
-     * @param pos Posición de inserción deseada (base 1).
+     * 2. Requisito 2a: Adicionar una rueda.
+     * @param pos Posición de inserción (base 1).
      */
     public void addWheel(int pos) {
         int index = adjustPos(pos, wheels.size() + 1) - 1;
@@ -45,11 +37,7 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 2b: Eliminar una rueda.
-     * Propósito: Remover la rueda ubicada en la posición indicada y ocultar su figura gráfica.
-     * Estado: Modifica la lista `wheels`. Si la máquina está vacía, falla asignando `ok = false`.
-     * De lo contrario, remueve la rueda, oculta su símbolo y asigna `ok = true`.
-     * 
+     * 3. Requisito 2b: Eliminar una rueda.
      * @param pos Posición de la rueda a eliminar (base 1).
      */
     public void delWheel(int pos) {
@@ -66,13 +54,37 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 3a: Adicionar un símbolo.
-     * Propósito: Insertar un símbolo del color dado en la misma posición de todas las ruedas existentes.
-     * Estado: Modifica la secuencia interna de cada `Wheel`. Asigna `ok = true` si existen ruedas,
-     * o `ok = false` y despliega error si no hay ruedas registradas.
-     * 
-     * @param pos Posición de inserción del símbolo en la rueda (base 1).
-     * @param color Nombre del color del símbolo en estándar CSS.
+     * Requisito 10a:Fijar una rueda para que no gire.
+     * @param wheel Posición de la rueda a fijar (base 1).
+     */
+    public void lock(int wheel) {
+          if (wheels.isEmpty()) {
+            notifyError("No hay ruedas para fijar.");
+            return;
+        }
+        int index = adjustPos(wheel, wheels.size()) - 1;
+        wheels.get(index).lock();
+        this.ok = true;
+    }
+    
+    /**
+     * Requisito 10b:Soltar una rueda previamente fijada.
+     * @param wheel Posición de la rueda a soltar (base 1).
+     */
+    public void unlock(int wheel) {
+        if (wheels.isEmpty()) {
+            notifyError("No hay ruedas para soltar.");
+            return;
+        }
+        int index = adjustPos(wheel, wheels.size()) - 1;
+        wheels.get(index).unlock();
+        this.ok = true;
+    }
+    
+    /**
+     * 4. Requisito 3a: Adicionar un símbolo.
+     * @param pos Posición del símbolo en las ruedas.
+     * @param color Nombre del color en estándar CSS.
      */
     public void addSymbol(int pos, String color) {
         if (wheels.isEmpty()) {
@@ -87,12 +99,8 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 3b: Eliminar un símbolo por su color.
-     * Propósito: Remover todas las instancias de un símbolo específico en todas las ruedas.
-     * Estado: Actualiza la lista de símbolos de cada `Wheel`. Marca `ok = true` si la operación
-     * se ejecuta sobre ruedas existentes, o `ok = false` si la máquina está vacía.
-     * 
-     * @param symbol Nombre del color del símbolo a remover.
+     * 5. Requisito 3b: Eliminar un símbolo por su color.
+     * @param symbol Color del símbolo a eliminar.
      */
     public void delSymbol(String symbol) {
         if (wheels.isEmpty()) {
@@ -107,10 +115,7 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 4: Girar las ruedas de la máquina.
-     * Propósito: Avanzar simultáneamente todas las ruedas al siguiente símbolo de su secuencia.
-     * Estado: Cambia el símbolo activo en cada `Wheel`. Refresca la vista en el Canvas y asigna `ok = true`.
-     * Si no hay ruedas, marca `ok = false` y notifica el error.
+     * 6. Requisito 4: Girar las ruedas de la máquina.
      */
     public void spin() {
         if (wheels.isEmpty()) {
@@ -125,11 +130,8 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 5: Consultar los símbolos visibles de la máquina.
-     * Propósito: Obtener una representación en texto del estado actual visible de izquierda a derecha.
-     * Estado: No modifica la estructura. Asigna `ok = true`.
-     * 
-     * @return Arreglo de `String` con los colores de los símbolos actualmente activos en cada rueda.
+     * 7. Requisito 5: Consultar los símbolos visibles de la máquina.
+     * @return Arreglo con los colores de los símbolos visibles ordenados de izquierda a derecha.
      */
     public String[] configuration() {
         String[] config = new String[wheels.size()];
@@ -142,14 +144,10 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 6: Consultar si la configuración es la ganadora (Jackpot).
-     * Propósito: Evaluar si todas las ruedas muestran simultáneamente el mismo símbolo (color).
-     * Estado: Asigna `ok = true` si la evaluación es válida (al menos 2 ruedas con símbolos coincidentes).
-     * Si el simulador es visible y resulta ganador, despliega un mensaje emergente `JOptionPane`.
-     * 
-     * @return `true` si todos los símbolos visibles coinciden; `false` en caso contrario o si hay menos de 2 ruedas.
+     * 8. Requisito 6: Consultar si la configuración es la ganadora (Jackpot).
+     * @return true si todos los símbolos visibles coinciden.
      */
-    public boolean isjackpot() {
+    public boolean isJackpot() {
         if (wheels.size() < 2) {
             this.ok = false;
             return false;
@@ -176,9 +174,7 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 7a: Hacer visible el simulador.
-     * Propósito: Activar la representación gráfica de la máquina y sus símbolos en el Canvas.
-     * Estado: Cambia `isVisible = true`, hace visibles los símbolos activos de las ruedas y asigna `ok = true`.
+     * 9. Requisito 7a: Hacer visible el simulador.
      */
     public void makeVisible() {
         this.isVisible = true;
@@ -187,9 +183,7 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 7b: Hacer invisible el simulador.
-     * Propósito: Ocultar la representación gráfica del simulador en el Canvas sin perder el estado.
-     * Estado: Cambia `isVisible = false`, oculta las figuras en pantalla y asigna `ok = true`.
+     * 10. Requisito 7b: Hacer invisible el simulador.
      */
     public void makeInvisible() {
         this.isVisible = false;
@@ -201,42 +195,160 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 8: Terminar el simulador.
-     * Propósito: Cerrar la aplicación y liberar los recursos gráficos.
-     * Estado: Oculta el Canvas y finaliza la ejecución de la JVM (`System.exit(0)`).
+     * 11. Requisito 8: Terminar el simulador.
      */
     public void exit() {
         makeInvisible();
         System.exit(0);
     }
+    
+    /**
+     * Requisito 9: Intercambiar dos ruedas de posición.
+     * @param wheel1 Posición de la primera rueda (desde 1).
+     * @param wheel2 Posición de la segunda rueda (desde 1).
+     */
+    public void swap(int wheel1, int wheel2) {
+        if (wheels.size() < 2) {
+            notifyError("Se necesitan al menos dos ruedas para intercambiar.");
+            return;
+        }
+        int index1 = adjustPos(wheel1, wheels.size()) - 1;
+        int index2 = adjustPos(wheel2, wheels.size()) - 1;
+        Collections.swap(wheels, index1, index2);
+        this.ok = true;
+    }
+        
+    /**
+     * 12. Requisito 11: Rotar una sola rueda a un color aleatorio.
+     * @param wheel Posición de la rueda a girar (desde 1).
+     */
+    public void spin(int wheel) {
+        if (wheels.isEmpty()) {
+            notifyError("No hay ruedas para girar.");
+            return;
+        }
+        int index = adjustPos(wheel, wheels.size()) - 1;
+        wheels.get(index).spin();
+        this.ok = true;
+        refreshVisibility();
+    }
+    
+    /**
+     * 13. Requisito 11: Rotar una rueda un número determinado de pasos.
+     * Si el simulador está visible, cada paso se muestra individualmente.
+     * @param wheel Posición de la rueda a girar (base 1).
+     * @param steps Número de pasos a girar. Debe ser mayor o igual a 0.
+     */
+    public void spin(int wheel, int steps) {
+        if (wheels.isEmpty()) {
+            notifyError("No hay ruedas para girar.");
+            return;
+        }
+        if (steps < 0) {
+            notifyError("El número de pasos no puede ser negativo.");
+            return;
+        }
+        int index = adjustPos(wheel, wheels.size()) - 1;
+        Wheel w = wheels.get(index);
+        for (int i = 0; i < steps; i++) {
+            w.spin();
+            if (this.isVisible) {
+                Symbol active = w.getVisibleSymbol();
+                if (active != null) active.makeVisible();
+            }
+        }
+        this.ok = true;
+    }
+    
+    /**
+     * 14. Requisito 12: Dejar la máquina en una configuración dada de colores.
+     * @param setSymbols Arreglo con el color deseado para cada rueda,
+     * en el mismo orden en que están las ruedas en la máquina.
+     */
+    public void spin(String[] setSymbols) {
+        if (wheels.isEmpty()) {
+            notifyError("No hay ruedas registradas.");
+            return;
+        }
+        if (setSymbols.length != wheels.size()) {
+            notifyError("El número de colores no coincide con el número de ruedas.");
+            return;
+        }
+        for (int i = 0; i < wheels.size(); i++) {
+            boolean found = wheels.get(i).setVisibleColor(setSymbols[i]);
+            if (!found) {
+                notifyError("Una rueda no contiene el color indicado.");
+                return;
+            }
+        }
+        this.ok = true;
+        refreshVisibility();
+    }
+    
+    /**
+     * 15. Dejar visible en una rueda específica el símbolo del color indicado.
+     * @param wheel Posición de la rueda (base 1).
+     * @param symbol Color del símbolo que se desea dejar visible.
+     */
+    public void placeSymbol(int wheel, String symbol) {
+        if (wheels.isEmpty()) {
+            notifyError("No hay ruedas registradas.");
+            return;
+        }
+        int index = adjustPos(wheel, wheels.size()) - 1;
+        boolean found = wheels.get(index).setVisibleColor(symbol);
+        if (!found) {
+            notifyError("La rueda no contiene ese color.");
+            return;
+        }
+        this.ok = true;
+        refreshVisibility();
+    }
+    
+    /**
+     * 16. Consultar los colores de símbolos registrados en la máquina.
+     * @return Arreglo con los colores disponibles en las ruedas.
+     */
+    public String[] symbols() {
+        if (wheels.isEmpty()) return new String[0];
+        ArrayList<Symbol> list = wheels.get(0).getSymbols();
+        String[] result = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            result[i] = list.get(i).getColor();
+        }
+        this.ok = true;
+        return result;
+    }
+    
+    /**
+     * 17. Consultar la cantidad de colores distintos usados en la máquina.
+     * @return Número de colores diferentes registrados.
+     */
+    public int distinctSymbols() {
+        java.util.Set<String> distinct = new java.util.HashSet<>();
+        for (Wheel w : wheels) {
+            for (Symbol s : w.getSymbols()) {
+                distinct.add(s.getColor().toLowerCase());
+            }
+        }
+        this.ok = true;
+        return distinct.size();
+    }
 
     /**
-     * Consulta de verificación de estado de la última operación.
-     * Propósito: Permitir al usuario o pruebas unitarias conocer si la acción previa se realizó exitosamente.
-     * Estado: No altera el estado interno de la máquina.
-     * 
-     * @return `true` si la última operación fue exitosa; `false` si ocurrió un error o la acción fue inválida.
+     * Indica si se logró realizar la última operación.
+     * @return true si la última operación fue exitosa.
      */
     public boolean ok() {
         return this.ok;
     }
 
-    /**
-     * Ajusta un índice ingresado por el usuario para garantizar que se mantenga dentro de los límites válidos.
-     * 
-     * @param pos Posición solicitada por el usuario.
-     * @param max Límite superior permitido.
-     * @return La posición ajustada (mínimo 1, máximo `max`).
-     */
     private int adjustPos(int pos, int max) {
         if (pos < 1) return 1;
         if (pos > max) return max;
         return pos;
     }
 
-    /**
-     * Redibuja en el Canvas los símbolos activos de cada rueda si la máquina se encuentra visible.
-     */
     private void refreshVisibility() {
         if (this.isVisible) {
             for (Wheel wheel : wheels) {
@@ -246,12 +358,6 @@ public class SlotMachine {
         }
     }
 
-    /**
-     * Registra un error de operación, actualizando la bandera de estado y mostrando
-     * una alerta emergente si la máquina está visible.
-     * 
-     * @param msg Mensaje descriptivo del error ocurrido.
-     */
     private void notifyError(String msg) {
         this.ok = false;
         if (this.isVisible) {
