@@ -1,9 +1,0 @@
-#BlueJ class context
-#Sun Sep 06 23:00:40 COT 2026
-comment0.target=SlotMachineCC2Test
-comment0.text=\r\n Clase de pruebas de unidad compartida entre los equipos del curso.\r\n Cada autor aporta un m\u00EDnimo de dos casos de prueba, identificados\r\n Autores Juan Pablo Su\u00E1rez Rubiano, Juan David Guarguati Guarguati (GgSr)\r\n
-comment1.target=void accordingGgSrShouldSwapWheelsCorrectly()
-comment1.text=\r\n Qu\u00E9 deber\u00EDa hacer\: al intercambiar dos ruedas con swap(),\r\n sus configuraciones visibles deben quedar cruzadas.\r\n
-comment2.target=void accordingGgSrShouldNotAllowLockedWheelToChangeColor()
-comment2.text=\r\n Qu\u00E9 no deber\u00EDa hacer\: una rueda fijada con lock() no debe\r\n cambiar de color al ejecutar spin().\r\n
-numComments=3
