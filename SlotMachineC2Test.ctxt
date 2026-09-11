@@ -1,0 +1,18 @@
+#BlueJ class context
+#Sun Sep 06 22:15:05 COT 2026
+comment0.target=SlotMachineC2Test
+comment0.text=\r\n Casos de prueba de unidad para las nuevas funcionalidades\r\n del Ciclo 2\: swap, lock/unlock, spin sobrecargado,\r\n placeSymbol, symbols y distinctSymbols.\r\n
+comment1.target=void setUp()
+comment10.target=void placeSymbolShouldFailWithNonExistentColor()
+comment11.target=void symbolsShouldReturnAllRegisteredColors()
+comment12.target=void distinctSymbolsShouldCountUniqueColorsOnly()
+comment13.target=void isJackpotShouldBeTrueWhenAllWheelsMatch()
+comment2.target=void swapShouldExchangeWheelPositions()
+comment3.target=void swapShouldFailWithLessThanTwoWheels()
+comment4.target=void lockShouldPreventWheelFromChangingOnSpin()
+comment5.target=void unlockShouldAllowWheelToSpinAgain()
+comment6.target=void spinSingleWheelShouldNotAffectOtherWheels()
+comment7.target=void spinWithNegativeStepsShouldFail()
+comment8.target=void spinWithGivenConfigurationShouldMatchExactly()
+comment9.target=void spinWithWrongSizeConfigurationShouldFail()
+numComments=14
