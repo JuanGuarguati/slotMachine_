@@ -138,8 +138,12 @@ public class SlotMachineC2Test {
         assertEquals(2, result.length);
     }
 
+
     @Test
-    public void distinctSymbolsShouldCountUniqueColorsOnly() {
+    public void distinctSymbolsShouldCountVisibleDistinctColors() {
+        // Arrange
+        machine.spin(new String[]{"red", "blue", "red"});
+
         // Act
         int result = machine.distinctSymbols();
 
