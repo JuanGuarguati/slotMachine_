@@ -8,12 +8,13 @@ import java.util.*;
 /**
  * Canvas is a class to allow for simple graphical drawing on a canvas.
  * This is a modification of the general purpose Canvas, specially made for
- * the BlueJ "shapes" example. 
+ * the BlueJ "shapes" example.
  *
  * @author: Bruce Quig
  * @author: Michael Kolling (mik)
  *
- * @version: 1.6 (shapes)
+ * @version: 2.0 (2026-09) - paleta de colores completa, fondo dinámico
+ *           y redimensionamiento del lienzo.
  */
 public class Canvas{
     // Note: The implementation of this class (specifically the handling of
@@ -113,25 +114,85 @@ public class Canvas{
 
     /**
      * Set the foreground colour of the Canvas.
-     * @param  newColour   the new colour for the foreground of the Canvas 
+     * @param  colorString   the new colour name for the foreground of the Canvas 
      */
     public void setForegroundColor(String colorString){
-        if(colorString.equals("red"))
-            graphic.setColor(Color.red);
-        else if(colorString.equals("black"))
-            graphic.setColor(Color.black);
-        else if(colorString.equals("blue"))
-            graphic.setColor(Color.blue);
-        else if(colorString.equals("yellow"))
-            graphic.setColor(Color.yellow);
-        else if(colorString.equals("green"))
-            graphic.setColor(Color.green);
-        else if(colorString.equals("magenta"))
-            graphic.setColor(Color.magenta);
-        else if(colorString.equals("white"))
-            graphic.setColor(Color.white);
-        else
-            graphic.setColor(Color.black);
+        graphic.setColor(resolveColor(colorString));
+    }
+
+    /**
+     * Cambia dinámicamente el color de fondo del lienzo y vuelve a dibujar
+     * todo lo que esté actualmente en pantalla con el nuevo fondo.
+     * No recrea el Canvas ni afecta draw()/erase()/redraw()/setVisible().
+     * @param colorString nombre del color (misma paleta que setForegroundColor).
+     */
+    public void setBackgroundColor(String colorString){
+        backgroundColour = resolveColor(colorString);
+        if (graphic != null) {
+            redraw();
+        }
+    }
+
+    /**
+     * Garantiza que el lienzo tenga, como mínimo, el ancho y alto indicados.
+     * Si ya es igual o más grande, no hace nada. Útil para acomodar una
+     * cantidad dinámica de ruedas sin recrear el Canvas.
+     * @param width  ancho mínimo requerido.
+     * @param height alto mínimo requerido.
+     */
+    public void ensureSize(int width, int height){
+        Dimension current = canvas.getPreferredSize();
+        int newWidth = Math.max(current.width, width);
+        int newHeight = Math.max(current.height, height);
+
+        if (newWidth == current.width && newHeight == current.height) {
+            return;
+        }
+
+        canvas.setPreferredSize(new Dimension(newWidth, newHeight));
+        frame.pack();
+
+        if (graphic != null) {
+            Dimension size = canvas.getSize();
+            Image newImage = canvas.createImage(size.width, size.height);
+            Graphics2D newGraphic = (Graphics2D) newImage.getGraphics();
+            newGraphic.setColor(backgroundColour);
+            newGraphic.fillRect(0, 0, size.width, size.height);
+            canvasImage = newImage;
+            graphic = newGraphic;
+            redraw();
+        }
+    }
+
+    /**
+     * Traduce el nombre de un color de la paleta del proyecto a un
+     * java.awt.Color concreto. Soporta exactamente los 15 colores usados
+     * por SlotMachine.PALETTE.
+     * @param colorString nombre del color en minúsculas o no.
+     * @return el Color correspondiente (negro si no se reconoce).
+     */
+    private Color resolveColor(String colorString){
+        if (colorString == null) {
+            return Color.black;
+        }
+        switch (colorString.toLowerCase()) {
+            case "red":       return Color.red;
+            case "blue":      return Color.blue;
+            case "green":     return Color.green;
+            case "yellow":    return Color.yellow;
+            case "purple":    return new Color(128, 0, 128);
+            case "orange":    return Color.orange;
+            case "cyan":      return Color.cyan;
+            case "magenta":   return Color.magenta;
+            case "black":     return Color.black;
+            case "white":     return Color.white;
+            case "gray":      return Color.gray;
+            case "pink":      return Color.pink;
+            case "darkgray":  return Color.darkGray;
+            case "lightgray": return Color.lightGray;
+            case "brown":     return new Color(139, 69, 19);
+            default:          return Color.black;
+        }
     }
 
     /**
