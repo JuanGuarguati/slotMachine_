@@ -52,4 +52,20 @@ public class SlotMachineContestTest {
         assertNotNull(actions);
         assertEquals(0, actions.length);
     }
+
+    @Test
+    public void solveShouldUseADeterministicNumberOfActions() {
+        // Arrange: por cada rueda 2..n se prueban n desplazamientos, cada uno
+        // con 2n giros más 1 giro para pasar al siguiente desplazamiento, y
+        // al final como máximo 1 giro para dejarla alineada con la rueda 1.
+        int n = 4;
+        int scanActions = (n - 1) * n * (2 * n + 1);
+
+        // Act
+        int[][] actions = solver.solve(n);
+
+        // Assert: no depende de una búsqueda al azar.
+        assertTrue(actions.length >= scanActions);
+        assertTrue(actions.length <= scanActions + (n - 1));
+    }
 }

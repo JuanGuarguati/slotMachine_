@@ -1,11 +1,19 @@
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 /**
  * Clase controladora para solucionar el problema de la maratón Slot Machine.
- * Implementa un algoritmo de búsqueda sistemática a ciegas (odómetro).
- * 
- * @version 3.0 (2026-09)
+ *
+ * Respeta los requisitos de diseño del Ciclo 3: de SlotMachine solo usa,
+ * como testing tool, SlotMachine(n), spin(wheel, steps) y
+ * distinctSymbols(); y como simulador, makeVisible(). Nunca consulta los
+ * colores de la máquina: trabaja "a ciegas", como en la maratón.
+ *
+ * Estrategia determinística: la rueda 1 es la referencia. Cada una de las
+ * demás ruedas se sincroniza con ella buscando el desplazamiento relativo
+ * que la deja mostrando el mismo color. Al terminar, todas las ruedas
+ * muestran el color de la rueda 1.
+ *
+ * @version 4.0 (2026-10)
  */
 public class SlotMachineContest {
 
@@ -15,39 +23,23 @@ public class SlotMachineContest {
      * @param n Tamaño de la máquina (n ruedas y n símbolos).
      * @return Secuencia de acciones {i, j} ejecutadas para ganar (rueda,
      *         pasos), en el mismo orden en que se aplicaron. Arreglo
-     *         vacío si n es inválido, si la máquina ya inicia en Jackpot,
-     *         o si se alcanzó el tope de seguridad sin encontrar Jackpot
-     *         (caso extremo, no debería ocurrir salvo n muy grande).
+     *         vacío si n es inválido.
      */
     public int[][] solve(int n) {
         SlotMachine tool = new SlotMachine(n);
         if (n <= 0 || !tool.ok()) {
             return new int[0][];
         }
-
         ArrayList<int[]> actions = new ArrayList<>();
-        int[] counters = new int[n];
-        long maxIterations = maxIterations(n);
-        long iterations = 0;
-
-        while (tool.distinctSymbols() != 1) {
-            if (iterations >= maxIterations) {
-                System.out.println("solve(" + n + "): se alcanzó el tope de seguridad ("
-                        + maxIterations + " incrementos) sin encontrar Jackpot.");
-                return new int[0][];
-            }
-            advanceOdometer(tool, counters, actions);
-            iterations++;
-        }
-
+        alignWithReference(tool, n, actions);
         return actions.toArray(new int[0][]);
     }
 
     /**
      * Requisito 15: Simular visualmente la solución.
-     * La máquina se hace visible antes de comenzar la búsqueda; cada
-     * rotación se anima paso a paso (comportamiento ya incorporado en
-     * spin(wheel, steps) cuando la máquina está visible).
+     * La máquina se hace visible antes de empezar; cada paso de
+     * spin(wheel, steps) se anima. Cuando todas las ruedas muestran el
+     * mismo color, la máquina pone el fondo verde de Jackpot.
      * @param n Tamaño de la máquina.
      */
     public void simulate(int n) {
@@ -55,65 +47,76 @@ public class SlotMachineContest {
         if (n <= 0 || !simulator.ok()) {
             return;
         }
-
         simulator.makeVisible();
-        int[] counters = new int[n];
-        long maxIterations = maxIterations(n);
-        long iterations = 0;
+        alignWithReference(simulator, n, null);
+    }
 
-        while (simulator.distinctSymbols() != 1) {
-            if (iterations >= maxIterations) {
-                JOptionPane.showMessageDialog(null,
-                        "Se alcanzó el tope de seguridad (" + maxIterations
-                                + " incrementos) sin llegar al Jackpot.\n"
-                                + "Para     n = " + n + " el peor caso de la búsqueda por fuerza "
-                                + "bruta es demasiado grande para animarlo.\nPrueba con un n "
-                                + "más pequeño, o usa solve(n) (sin animación).",
-                        "Slot Machine - Simulación detenida",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
+    /**
+     * Sincroniza las ruedas 2..n con la rueda 1 (la referencia). La rueda
+     * 1 nunca queda movida: solo gira vueltas completas, así que conserva
+     * su color original, que es el color final de todas las ruedas.
+     * @param machine La máquina a resolver.
+     * @param n       Cantidad de ruedas (y de símbolos).
+     * @param actions Lista donde se registran las acciones {i, j}; puede
+     *                ser null si no se necesita el historial.
+     */
+    private void alignWithReference(SlotMachine machine, int n, ArrayList<int[]> actions) {
+        for (int wheel = 2; wheel <= n; wheel++) {
+            int offset = findOffsetToReference(machine, n, wheel, actions);
+            if (offset > 0) {
+                spin(machine, wheel, offset, actions);
             }
-            advanceOdometer(simulator, counters, null);
-            iterations++;
         }
     }
 
     /**
-     * Calcula el tope de seguridad de incrementos del odómetro: en el
-     * peor caso hace falta recorrer casi todo el ciclo de n^n
-     * configuraciones antes de garantizar encontrar una ganadora.
-     * @param n Tamaño de la máquina.
-     * @return El tope de iteraciones (n^n + 1).
+     * Encuentra cuántos pasos debe girar la rueda `wheel` para mostrar el
+     * mismo color que la rueda 1, usando solo distinctSymbols().
+     *
+     * Para cada desplazamiento relativo d (0..n-1) entre la rueda `wheel`
+     * y la rueda 1, se giran ambas juntas una vuelta completa (n pasos)
+     * sumando distinctSymbols() en cada paso. Si d es el correcto, las dos
+     * ruedas muestran siempre el mismo color y nunca aportan un color
+     * extra; si d es incorrecto, muestran colores distintos y en algún
+     * paso la rueda `wheel` aporta un color que ninguna otra rueda tiene
+     * (las otras n-2 ruedas no pueden cubrir los n colores). Por eso la
+     * suma mínima corresponde siempre, y solo, al d correcto.
+     *
+     * Al terminar, la rueda 1 y la rueda `wheel` quedan en su posición
+     * inicial (cada una dio vueltas completas).
+     * @param machine La máquina.
+     * @param n       Cantidad de ruedas (y de símbolos).
+     * @param wheel   Rueda a sincronizar (2..n).
+     * @param actions Historial de acciones; puede ser null.
+     * @return Pasos (0..n-1) que debe girar `wheel` para igualar a la rueda 1.
      */
-    private long maxIterations(int n) {
-        return (long) Math.pow(n, n) + 1;
+    private int findOffsetToReference(SlotMachine machine, int n, int wheel, ArrayList<int[]> actions) {
+        int bestOffset = 0;
+        int bestSum = Integer.MAX_VALUE;
+        for (int d = 0; d < n; d++) {
+            int sum = 0;
+            for (int step = 0; step < n; step++) {
+                sum += machine.distinctSymbols();
+                spin(machine, 1, 1, actions);
+                spin(machine, wheel, 1, actions);
+            }
+            if (sum < bestSum) {
+                bestSum = sum;
+                bestOffset = d;
+            }
+            spin(machine, wheel, 1, actions);
+        }
+        return bestOffset;
     }
 
     /**
-     * Avanza el odómetro en una unidad: incrementa el contador de la
-     * rueda 1; si esa rueda completa un ciclo (vuelve a 0), el acarreo
-     * pasa a la siguiente rueda, y así sucesivamente. Cada incremento de
-     * un contador se traduce en una llamada real a spin(wheel, 1).
-     * @param machine  La máquina sobre la que se ejecutan las rotaciones.
-     * @param counters Contador propio (nunca consultado a la máquina) del
-     *                 desplazamiento acumulado de cada rueda.
-     * @param actions  Lista donde se registran las acciones {i, j}
-     *                 ejecutadas (para el resultado de solve()); puede
-     *                 ser null si no se necesita conservar el historial
-     *                 (como en simulate()).
+     * Ejecuta spin(wheel, steps) sobre la máquina y, si se pidió, lo
+     * registra como acción {wheel, steps}.
      */
-    private void advanceOdometer(SlotMachine machine, int[] counters, ArrayList<int[]> actions) {
-        int n = counters.length;
-        boolean carry = true;
-        int i = 0;
-        while (carry && i < n) {
-            machine.spin(i + 1, 1);
-            if (actions != null) {
-                actions.add(new int[]{i + 1, 1});
-            }
-            counters[i] = (counters[i] + 1) % n;
-            carry = (counters[i] == 0);
-            i++;
+    private void spin(SlotMachine machine, int wheel, int steps, ArrayList<int[]> actions) {
+        machine.spin(wheel, steps);
+        if (actions != null) {
+            actions.add(new int[]{wheel, steps});
         }
     }
 }
