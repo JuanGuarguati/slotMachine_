@@ -20,6 +20,7 @@
 | `symbols()` | Leía la rueda 1 | Devuelve los símbolos registrados | Funciona sin ruedas. |
 | `configuration()` | `"empty"` en una rueda vacía | `"white"` en una rueda vacía, `""` si el shy está escondido | Lo piden las pruebas compartidas. |
 | `exit()` | `System.exit(0)` | Solo oculta el simulador | `System.exit` cerraba BlueJ y cortaba las pruebas. |
+| `shapes` | `Rectangle`, `Circle` y `Triangle` repetían los mismos atributos y métodos | Clase abstracta `Shape` con lo común; las tres la heredan | Sugerencia del profesor: quita código repetido. |
 | Javadoc | `3 <= n <= 50` | `entre 3 y 50` | El `<` rompía la generación de la documentación. |
 
 ---
@@ -29,7 +30,17 @@
 - `SlotMachine` solo conoce `Wheel` y `Symbol`. Crea los objetos con las fábricas `Wheel.create(type, x)` y `Symbol.create(type, color, x, y)`, que tienen un `switch` y devuelven `null` si el tipo no existe.
 - **Extensibilidad:** para un tipo nuevo se crea una clase y se añade un `case` en la fábrica. `SlotMachine` no cambia. Así se agregó la rueda reverse.
 
+- **También en `shapes`:** `Shape` es abstracta y tiene lo común de las figuras (posición, color, visibilidad, moverse, cambiar color, borrar). `Rectangle`, `Circle` y `Triangle` la heredan y solo redefinen `draw()` (cómo se dibuja cada una).
+
 Ver [diagrama-clases-ciclo4.png](diagramas/diagrama-clases-ciclo4.png). En azul está lo nuevo o cambiado.
+
+### Herencia en `shapes` (`Shape`)
+- Antes las tres figuras tenían copiados `xPosition`, `yPosition`, `color`, `isVisible`, `makeVisible`, `moveHorizontal`, `changeColor`, etc. Ahora están una sola vez en `Shape`.
+- `draw()` es **abstracto**: cada figura sabe dibujarse (rectángulo, círculo con `PI`, triángulo con 3 vértices). `Shape` llama a `draw()` desde `makeVisible`, `moveHorizontal`, `changeColor`... sin saber qué figura es (polimorfismo).
+- **Ganancia en los símbolos:** `Symbol` guarda `protected Shape shape`. Así `shiftHorizontal`, `show` y `hide` se escriben una sola vez en `Symbol` (`shape.moveHorizontal(...)`, `shape.makeVisible()`, `shape.makeInvisible()`), y cada subclase solo crea su figura en el constructor.
+- `EphemeralSymbol` guarda además `circle` (el mismo objeto) porque `changeSize(diameter)` solo existe en `Circle`.
+- `ShySymbol` redefine `show()`: solo llama a `super.show()` si no está escondido.
+- En `Canvas` hubo que escribir `java.awt.Shape`, porque ahora existe `shapes.Shape` con el mismo nombre.
 
 ---
 
@@ -128,4 +139,6 @@ En total pasan las 73 pruebas de unidad.
 - **¿Por qué la máquina guarda los símbolos?** Para que una rueda agregada después nazca con los mismos símbolos, y para poder agregar símbolos antes que ruedas.
 - **¿Por qué placeSymbol no encoge el ephemeral?** Porque no es un giro: pone un color exacto. Sí es una selección, por eso el shy sí alterna.
 - **¿La rebel se puede desbloquear?** Nunca se bloquea, así que `unlock` no le cambia nada.
+- **¿Por qué `Shape` es abstracta?** Porque no existe una "figura" sin forma: no se sabe dibujar. Solo se crean `Rectangle`, `Circle` o `Triangle`.
+- **¿Por qué el ephemeral guarda `circle` si ya tiene `shape`?** Porque `shape` es de tipo `Shape`, y `Shape` no tiene `changeSize`. Con `circle` se evita hacer un cast.
 - **¿`solve` y `simulate` cambian?** No. `SlotMachine(n)` crea solo elementos normales.

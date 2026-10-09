@@ -61,16 +61,24 @@ Ver [tipos.png](tipos.png): ruedas normal, lefty, rebel, reverse, normal y norma
 - `create(type, color, x, y)`: fábrica estática; devuelve `null` si el tipo no existe.
 - `spun()` y `selected()`: no hacen nada; las subclases los redefinen.
 - `isHidden()` (devuelve `false`) y `setHidden(hidden)` (no hace nada); el shy los redefine.
-- Abstractos: `shiftHorizontal(distance)`, `show()`, `hide()`.
+- Atributo `# shape : Shape`: la figura del símbolo, guardada como la clase abstracta.
+- `shiftHorizontal(distance)`, `show()` y `hide()` se hacen una sola vez aquí, sobre `shape` (antes eran abstractos y cada subclase los repetía).
 
 **Cambiado**
 - El constructor es `protected Symbol(color)`.
 - `makeVisible()` y `makeInvisible()` cambian `isVisible` y llaman a `show()` / `hide()`.
 
 ### NormalSymbol.java, EphemeralSymbol.java, ShySymbol.java (nuevas)
-- `NormalSymbol`: un `Rectangle` de 30x30.
-- `EphemeralSymbol`: un `Circle`. Atributo `diameter`, constantes `SHRINK_STEP = 4` y `POINT_SIZE = 2`, y métodos `spun()`, `getDiameter()` e `isPoint()`.
+Cada constructor crea su figura y la guarda en `shape`.
+- `NormalSymbol`: un `Rectangle` de 30x30. Solo tiene el constructor.
+- `EphemeralSymbol`: un `Circle`. Guarda también `circle` (el mismo objeto que `shape`) porque necesita `changeSize(diameter)`, que solo tiene `Circle`. Atributo `diameter`, constantes `SHRINK_STEP = 4` y `POINT_SIZE = 2`, y métodos `spun()`, `getDiameter()` e `isPoint()`.
 - `ShySymbol`: un `Triangle` de 30x30. Atributo `hidden` y métodos `selected()`, `isHidden()` y `setHidden(hidden)`. `show()` no dibuja si está escondido.
+
+### shapes: herencia con `Shape` (sugerencia del profesor)
+- **Nueva** `Shape` (abstracta): atributos comunes `xPosition`, `yPosition`, `color`, `isVisible`; métodos comunes `makeVisible`, `makeInvisible`, `moveRight/Left/Up/Down`, `moveHorizontal`, `moveVertical`, `slowMoveHorizontal/Vertical`, `changeColor` y `erase()`. `draw()` es abstracto.
+- `Rectangle`, `Circle` y `Triangle` ahora `extends Shape`. Cada una solo guarda su tamaño, su constante (`EDGES`, `PI`, `VERTICES`), `changeSize` y su propio `draw()`.
+- `Canvas`: donde usaba `Shape` de Java ahora dice `java.awt.Shape`, para no confundirse con `shapes.Shape`.
+- Se ven igual que antes (se comparó la imagen pixel por pixel).
 
 ### Wheel.java (ahora abstracta)
 **Eliminado**

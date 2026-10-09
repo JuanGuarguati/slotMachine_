@@ -1,10 +1,14 @@
+import shapes.Shape;
+
 /**
  * Representa un símbolo de una rueda de la máquina tragamonedas.
  *
  * Es una clase abstracta: guarda lo que todos los símbolos tienen en común
- * (su color y si se están dibujando) y deja que cada tipo decida con qué
- * figura se dibuja y cómo reacciona cuando su rueda gira o cuando él queda
- * seleccionado.
+ * (su color, si se están dibujando y su figura) y deja que cada tipo
+ * decida con qué figura se dibuja y cómo reacciona cuando su rueda gira o
+ * cuando él queda seleccionado. La figura es un Shape (Rectangle, Circle o
+ * Triangle), así que moverla, mostrarla y ocultarla se escribe una sola
+ * vez aquí, para todos los tipos.
  *
  * Tipos disponibles (Requisito 18):
  * - "normal": cuadrado de color (el de los ciclos anteriores).
@@ -16,7 +20,7 @@
  * Para agregar un tipo nuevo basta con crear una subclase y añadir una
  * línea en create(...): SlotMachine y Wheel no cambian (extensibilidad).
  *
- * @version 4.0 (Ciclo 4)
+ * @version 4.1 (Ciclo 4)
  */
 public abstract class Symbol {
 
@@ -34,6 +38,9 @@ public abstract class Symbol {
 
     private String color;
     private boolean isVisible;
+
+    /** Figura con la que se dibuja el símbolo; la crea cada subclase. */
+    protected Shape shape;
 
     /**
      * Construye la parte común de un símbolo.
@@ -137,15 +144,21 @@ public abstract class Symbol {
      * los ejes de la máquina cambian de posición.
      * @param distance Distancia en píxeles.
      */
-    public abstract void shiftHorizontal(int distance);
+    public void shiftHorizontal(int distance) {
+        shape.moveHorizontal(distance);
+    }
 
     /**
      * Dibuja la figura del símbolo.
      */
-    protected abstract void show();
+    protected void show() {
+        shape.makeVisible();
+    }
 
     /**
      * Borra la figura del símbolo.
      */
-    protected abstract void hide();
+    protected void hide() {
+        shape.makeInvisible();
+    }
 }

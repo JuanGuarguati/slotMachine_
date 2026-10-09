@@ -13,23 +13,23 @@ Los diagramas terminados están en `diagramas/`, para copiarlos en Astah:
 
 ### Symbol
 - Marcarla como **abstracta** (en Astah: propiedad *abstract*; el nombre sale en cursiva).
-- **Eliminar** el atributo `shape : Rectangle` y su composición con `Rectangle`.
+- **Cambiar** el atributo `shape : Rectangle` por `# shape : Shape`, y su composición ahora va hacia `Shape` (`1 — 1`).
 - **Añadir**
   - Constantes públicas estáticas: `NORMAL : String = "normal"`, `EPHEMERAL : String = "ephemeral"`, `SHY : String = "shy"`.
   - Constante protegida estática: `# SIZE : int = 30`.
   - `+ create(type : String, color : String, x : int, y : int) : Symbol` (estático, subrayado).
   - `+ isHidden() : boolean`, `+ setHidden(hidden : boolean) : void`, `+ spun() : void`, `+ selected() : void`.
-  - Abstractos (en cursiva): `+ shiftHorizontal(distance : int) : void`, `# show() : void`, `# hide() : void`.
+  - `+ shiftHorizontal(distance : int) : void`, `# show() : void`, `# hide() : void` (normales, no abstractos: usan `shape`).
 - El constructor pasa a `# Symbol(color : String)`.
 
 ### NormalSymbol, EphemeralSymbol, ShySymbol (nuevas)
 | Clase | Atributos | Métodos |
 |---|---|---|
-| `NormalSymbol` | `- shape : Rectangle` | constructor `(color, x, y)`, `shiftHorizontal`, `show`, `hide` |
-| `EphemeralSymbol` | `- shape : Circle`, `- diameter : int`, `- SHRINK_STEP : int = 4`, `- POINT_SIZE : int = 2` | constructor, `spun`, `getDiameter() : int`, `isPoint() : boolean`, `shiftHorizontal`, `show`, `hide` |
-| `ShySymbol` | `- shape : Triangle`, `- hidden : boolean` | constructor, `selected`, `isHidden`, `setHidden`, `shiftHorizontal`, `show`, `hide` |
+| `NormalSymbol` | (ninguno) | constructor `(color, x, y)` |
+| `EphemeralSymbol` | `- circle : Circle`, `- diameter : int`, `- SHRINK_STEP : int = 4`, `- POINT_SIZE : int = 2` | constructor, `spun`, `getDiameter() : int`, `isPoint() : boolean` |
+| `ShySymbol` | `- hidden : boolean` | constructor, `selected`, `isHidden`, `setHidden`, `# show() : void` |
 
-Cada una con **generalización** (flecha de herencia, triángulo vacío) hacia `Symbol` y **composición** `1 — 1` con su figura (`Rectangle`, `Circle`, `Triangle`).
+Cada una con **generalización** (flecha de herencia, triángulo vacío) hacia `Symbol`. Solo `EphemeralSymbol` tiene además una composición `1 — 1` con `Circle` (atributo `circle`).
 
 ### Wheel
 - Marcarla como **abstracta**.
@@ -67,8 +67,15 @@ Las cuatro con generalización hacia `Wheel`.
 ### SlotMachineContest
 - Sin cambios.
 
-### shapes
-- Añadir `Circle` (`changeSize(newDiameter : int)`) y `Triangle` (`changeSize(newHeight : int, newWidth : int)`), si no están.
+### shapes (herencia con Shape)
+- **Añadir** `Shape`, **abstracta**:
+  - Atributos: `# xPosition : int`, `# yPosition : int`, `# color : String`, `# isVisible : boolean`.
+  - Métodos: `# Shape(xPosition : int, yPosition : int, color : String)`, `makeVisible`, `makeInvisible`, `moveRight`, `moveLeft`, `moveUp`, `moveDown`, `moveHorizontal(distance : int)`, `moveVertical(distance : int)`, `slowMoveHorizontal(distance : int)`, `slowMoveVertical(distance : int)`, `changeColor(newColor : String)`, `# erase() : void` y `# draw() : void` (abstracto, en cursiva).
+- `Rectangle`, `Circle` y `Triangle`: **generalización** hacia `Shape`. Quitarles los atributos y métodos que ahora están en `Shape`. Cada una queda con:
+  - `Rectangle`: `+ EDGES : int = 4` (estático), `- height`, `- width`, `Rectangle()`, `changeSize(newHeight, newWidth)`, `# draw()`.
+  - `Circle`: `+ PI : double` (estático), `- diameter`, `Circle()`, `changeSize(newDiameter)`, `# draw()`.
+  - `Triangle`: `+ VERTICES : int = 3` (estático), `- height`, `- width`, `Triangle()`, `changeSize(newHeight, newWidth)`, `# draw()`.
+- Las composiciones `SlotMachine ◆— Rectangle` (`frame`) y `Wheel ◆— Rectangle` (`marker`) quedan igual.
 
 ---
 

@@ -9,11 +9,10 @@ import shapes.Triangle;
  * Mientras está escondido no muestra su color: configuration() da "" en
  * su rueda, y no cuenta en distinctSymbols() ni en isJackpot().
  *
- * @version 4.0 (Ciclo 4)
+ * @version 4.1 (Ciclo 4)
  */
 public class ShySymbol extends Symbol {
 
-    private Triangle shape;
     private boolean hidden;
 
     /**
@@ -25,11 +24,12 @@ public class ShySymbol extends Symbol {
     public ShySymbol(String color, int x, int y) {
         super(color);
         hidden = false;
-        shape = new Triangle();
-        shape.changeSize(SIZE, SIZE);
-        shape.changeColor(color);
-        shape.moveHorizontal(x - 115);
-        shape.moveVertical(y - 50);
+        Triangle triangle = new Triangle();
+        triangle.changeSize(SIZE, SIZE);
+        triangle.changeColor(color);
+        triangle.moveHorizontal(x - 115);
+        triangle.moveVertical(y - 50);
+        shape = triangle;
     }
 
     /**
@@ -65,29 +65,12 @@ public class ShySymbol extends Symbol {
     }
 
     /**
-     * Desplaza el triángulo en el eje horizontal.
-     * @param distance Distancia en píxeles.
-     */
-    @Override
-    public void shiftHorizontal(int distance) {
-        shape.moveHorizontal(distance);
-    }
-
-    /**
      * Dibuja el triángulo, salvo que el símbolo esté escondido.
      */
     @Override
     protected void show() {
         if (!hidden) {
-            shape.makeVisible();
+            super.show();
         }
-    }
-
-    /**
-     * Borra el triángulo.
-     */
-    @Override
-    protected void hide() {
-        shape.makeInvisible();
     }
 }

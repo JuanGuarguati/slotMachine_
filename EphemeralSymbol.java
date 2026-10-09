@@ -7,7 +7,7 @@ import shapes.Circle;
  * círculo se encoge hacia su centro, así que siempre queda en medio de la
  * celda. Aunque sea un punto, su color sigue contando.
  *
- * @version 4.0 (Ciclo 4)
+ * @version 4.1 (Ciclo 4)
  */
 public class EphemeralSymbol extends Symbol {
 
@@ -17,7 +17,11 @@ public class EphemeralSymbol extends Symbol {
     /** Diámetro final: el símbolo queda como un punto. */
     private static final int POINT_SIZE = 2;
 
-    private Circle shape;
+    /**
+     * La misma figura que Symbol.shape, vista como Circle para poder
+     * cambiarle el diámetro (changeSize de Circle recibe un solo valor).
+     */
+    private Circle circle;
     private int diameter;
 
     /**
@@ -29,11 +33,12 @@ public class EphemeralSymbol extends Symbol {
     public EphemeralSymbol(String color, int x, int y) {
         super(color);
         diameter = SIZE;
-        shape = new Circle();
-        shape.changeSize(diameter);
-        shape.changeColor(color);
-        shape.moveHorizontal(x - 10);
-        shape.moveVertical(y - 50);
+        circle = new Circle();
+        circle.changeSize(diameter);
+        circle.changeColor(color);
+        circle.moveHorizontal(x - 10);
+        circle.moveVertical(y - 50);
+        shape = circle;
     }
 
     /**
@@ -47,9 +52,9 @@ public class EphemeralSymbol extends Symbol {
         int newDiameter = Math.max(POINT_SIZE, diameter - SHRINK_STEP);
         int offset = (diameter - newDiameter) / 2;
         diameter = newDiameter;
-        shape.changeSize(diameter);
-        shape.moveHorizontal(offset);
-        shape.moveVertical(offset);
+        circle.changeSize(diameter);
+        circle.moveHorizontal(offset);
+        circle.moveVertical(offset);
     }
 
     /**
@@ -66,30 +71,5 @@ public class EphemeralSymbol extends Symbol {
      */
     public boolean isPoint() {
         return diameter == POINT_SIZE;
-    }
-
-    /**
-     * Desplaza el círculo en el eje horizontal.
-     * @param distance Distancia en píxeles.
-     */
-    @Override
-    public void shiftHorizontal(int distance) {
-        shape.moveHorizontal(distance);
-    }
-
-    /**
-     * Dibuja el círculo.
-     */
-    @Override
-    protected void show() {
-        shape.makeVisible();
-    }
-
-    /**
-     * Borra el círculo.
-     */
-    @Override
-    protected void hide() {
-        shape.makeInvisible();
     }
 }
