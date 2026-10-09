@@ -52,7 +52,7 @@ Para pasar un arreglo de texto en BlueJ, escríbelo así: `{"green", "red", "blu
 ### Parte A: tipos de ruedas
 | # | Llamada | Qué debe pasar | Por qué (enunciado) |
 |---|---|---|---|
-| 1 | `makeVisible()` | Se abre el lienzo. | Para que se vean los mensajes de error y las figuras. |
+| 1 | `makeVisible()` | Todavía no se ve nada: la máquina está vacía y los símbolos solo se dibujan dentro de una rueda. El lienzo aparece en el paso 5, con la primera rueda. | Se llama al inicio para que los errores de los pasos 3 y 4 salgan como mensaje. |
 | 2 | `addSymbol(1, "red")`, `addSymbol(2, "blue")`, `addSymbol(3, "green")` | `symbols()` = `[red, blue, green]`. Se registran aunque no haya ruedas. | Req. 16. Los símbolos quedan guardados en la máquina. |
 | 3 | `addSymbol(4, "RED")` | Mensaje de error, `ok()` = `false`. | "Los símbolos deben ser de colores diferentes" (sin importar mayúsculas). |
 | 4 | `addSymbol("diamond", 4, "black")` | Error, `ok()` = `false`. | Req. 16: solo existen los tipos definidos; la fábrica devuelve `null`. |
@@ -72,7 +72,7 @@ Crea **otra** máquina: `new SlotMachine()` y luego `makeVisible()`.
 
 | # | Llamada | Qué debe pasar | Por qué (enunciado) |
 |---|---|---|---|
-| 1 | `addWheel(1)`, `addWheel(2)` | Dos ruedas normales. | El `addWheel(pos)` viejo crea ruedas normales. |
+| 1 | `addWheel(1)`, `addWheel(2)` | Se abre el lienzo con dos ruedas normales vacías (sin símbolos todavía). | El `addWheel(pos)` viejo crea ruedas normales. |
 | 2 | `addSymbol("normal", 1, "red")`, `addSymbol("ephemeral", 2, "blue")`, `addSymbol("shy", 3, "green")` | Cuadrado rojo visible en las dos ruedas. `configuration()` = `[red, red]`. | Req. 18 y usabilidad 1: cuadrado, círculo y triángulo. |
 | 3 | `placeSymbol(1, "blue")` | La rueda 1 muestra el **círculo** azul, con su tamaño completo. | `placeSymbol` no es un giro, así que no lo encoge. |
 | 4 | `spin(1, 3)` (vuelta completa) 7 veces | El círculo se encoge en cada giro hasta quedar como **un punto**. `configuration()[0]` sigue siendo `blue`. | Req. 18 ephemeral: "en cada giro va decrementando su tamaño hasta quedar como un punto". |
