@@ -2,6 +2,11 @@
 
 Se parte del Astah del Ciclo 3 (ya corregido con `astah-cambios-ciclo3.md`). Abajo está solo lo que cambia.
 
+Los diagramas terminados están en `diagramas/`, para copiarlos en Astah:
+- Clases: `diagrama-clases-ciclo4.png` (en azul lo nuevo o cambiado).
+- Secuencia nuevos: `secuencia-addWheel.png`, `secuencia-addSymbol.png`, `secuencia-spin.png`.
+- Secuencia actualizados: `secuencia-spin-steps.png`, `secuencia-swap.png`, `secuencia-lock.png`, `secuencia-delWheel.png`, `secuencia-placeSymbol.png`, `secuencia-configuration.png`.
+
 ---
 
 ## 1. Diagrama de clases
