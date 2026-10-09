@@ -27,17 +27,17 @@ import java.util.ArrayList;
  */
 public class SlotMachineContest {
 
-    /** Tamaño mínimo de la maratón (3 <= n). */
+    /** Tamaño mínimo de la maratón (n mínimo 3). */
     private static final int MIN_N = 3;
 
-    /** Tamaño máximo de la maratón (n <= 50). */
+    /** Tamaño máximo de la maratón (n máximo 50). */
     private static final int MAX_N = 50;
 
     /**
      * Requisito 14: Solucionar el problema de la maratón.
      * La máquina permanece invisible durante todo el proceso.
      * El tamaño se valida aquí, sin preguntarle ok() a la máquina.
-     * @param n Tamaño de la máquina (n ruedas y n símbolos, 3 <= n <= 50).
+     * @param n Tamaño de la máquina (n ruedas y n símbolos, entre 3 y 50).
      * @return Acciones {rueda, pasos} que llevan todas las ruedas al color
      *         de la rueda 1, en el orden en que se aplicaron. Arreglo
      *         vacío si n está fuera de 3..50.
@@ -85,7 +85,7 @@ public class SlotMachineContest {
      * (igual que en solve). Luego la máquina se hace visible y se ejecuta
      * cada spin(wheel, steps) a la vista. Al llegar al Jackpot, la
      * máquina lo anuncia con isJackpot().
-     * @param n Tamaño de la máquina (3 <= n <= 50).
+     * @param n Tamaño de la máquina (entre 3 y 50).
      */
     public void simulate(int n) {
         if (n < MIN_N || n > MAX_N) {

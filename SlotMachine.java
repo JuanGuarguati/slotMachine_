@@ -9,13 +9,20 @@ import shapes.Rectangle;
  * Simulador de Máquina Tragamonedas ajustado estrictamente a los métodos
  * asociados a los Requisitos Funcionales del laboratorio.
  *
- * La máquina es un ArrayList de ruedas; cada rueda es un ArrayList de
- * símbolos y cada símbolo es un Rectangle de color (el color ES el
- * símbolo). Detrás de las ruedas hay un Rectangle grande (el marco) de
- * color fijo que se pone verde cuando hay Jackpot. No modifica el fondo
- * del Canvas ni usa imágenes: todo se dibuja con Rectangle.
- * 
- * @version 6.0 
+ * La máquina es un ArrayList de ruedas y cada rueda es un ArrayList de
+ * símbolos. Desde el Ciclo 4 hay varios tipos de rueda (normal, lefty,
+ * rebel, reverse) y de símbolo (normal, ephemeral, shy). La máquina solo
+ * conoce las clases abstractas Wheel y Symbol y crea los objetos con sus
+ * fábricas, así que un tipo nuevo no obliga a cambiar esta clase.
+ *
+ * La máquina guarda además la lista de símbolos registrados (tipo y
+ * color): toda rueda nueva nace con una copia de esos símbolos, y no se
+ * pueden registrar dos símbolos del mismo color.
+ *
+ * Detrás de las ruedas hay un Rectangle grande (el marco) de color fijo
+ * que se pone verde cuando hay Jackpot.
+ *
+ * @version 7.0 (Ciclo 4)
  */
 public class SlotMachine {
     
@@ -36,10 +43,10 @@ public class SlotMachine {
         "#00ade6", "#e6df5c", "#a422e6", "#00bf47", "#bf564d", "#1d3fbf"
     };
 
-    /** Tamaño mínimo de la maratón (3 <= n <= 50). */
+    /** Tamaño mínimo de la maratón (n entre 3 y 50). */
     private static final int MIN_N = 3;
 
-    /** Tamaño máximo de la maratón (3 <= n <= 50). */
+    /** Tamaño máximo de la maratón (n entre 3 y 50). */
     private static final int MAX_N = 50;
 
     /** Separación horizontal, en píxeles, entre dos ejes consecutivos. */
@@ -52,6 +59,8 @@ public class SlotMachine {
     private static final String JACKPOT_COLOR = "#006400";
 
     private ArrayList<Wheel> wheels;
+    private ArrayList<String> symbolTypes;
+    private ArrayList<String> symbolColors;
     private boolean isVisible;
     private boolean ok;
     private Rectangle frame;
@@ -61,6 +70,8 @@ public class SlotMachine {
      */
     public SlotMachine() {
         this.wheels = new ArrayList<>();
+        this.symbolTypes = new ArrayList<>();
+        this.symbolColors = new ArrayList<>();
         this.isVisible = false;
         this.ok = true;
         this.frame = new Rectangle();
@@ -71,8 +82,9 @@ public class SlotMachine {
     /**
      * Requisito 13 (Extensión): Crea una máquina de n ruedas y n símbolos,
      * inicializada aleatoriamente. Igual que en la maratón, n debe estar
-     * entre 3 y 50; si no, la máquina queda vacía y ok() es false.
-     * @param n Cantidad de ruedas y símbolos distintos (3 <= n <= 50).
+     * entre 3 y 50; si no, la máquina queda vacía y ok() es false. Todas
+     * las ruedas y los símbolos son de tipo normal.
+     * @param n Cantidad de ruedas y símbolos distintos (entre 3 y 50).
      */
     public SlotMachine(int n) {
         this(); 
@@ -99,12 +111,32 @@ public class SlotMachine {
     }
         
     /**
-     * Requisito 2a: Adicionar una rueda.
+     * Requisito 2a: Adicionar una rueda normal.
      * @param pos Posición de inserción (base 1).
      */
     public void addWheel(int pos) {
+        addWheel(Wheel.NORMAL, pos);
+    }
+
+    /**
+     * Requisito 16: Adicionar una rueda del tipo indicado. La rueda nace
+     * con una copia de todos los símbolos registrados en la máquina, en el
+     * mismo orden y del mismo tipo. Si el tipo no existe, no se agrega
+     * nada y ok() queda en false.
+     * @param type Tipo de rueda ("normal", "lefty", "rebel" o "reverse").
+     * @param pos Posición de inserción (base 1).
+     */
+    public void addWheel(String type, int pos) {
+        Wheel newWheel = Wheel.create(type, 0);
+        if (newWheel == null) {
+            notifyError("No existe el tipo de rueda " + type + ".");
+            return;
+        }
+        for (int i = 0; i < symbolColors.size(); i++) {
+            newWheel.addSymbol(symbolTypes.get(i), i + 1, symbolColors.get(i));
+        }
+
         int index = adjustPos(pos, wheels.size() + 1) - 1;
-        Wheel newWheel = new Wheel(0);
         wheels.add(index, newWheel);
 
         if (this.isVisible) {
@@ -117,7 +149,8 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 2b: Eliminar una rueda.
+     * Requisito 2b: Eliminar una rueda. Una rueda rebel no se deja
+     * eliminar (Requisito 17).
      * @param pos Posición de la rueda a eliminar (base 1).
      */
     public void delWheel(int pos) {
@@ -126,6 +159,10 @@ public class SlotMachine {
             return;
         }
         int index = adjustPos(pos, wheels.size()) - 1;
+        if (!wheels.get(index).isRemovable()) {
+            notifyError("La rueda " + (index + 1) + " no se deja eliminar.");
+            return;
+        }
         Wheel removed = wheels.remove(index);
 
         removed.makeInvisible();
@@ -139,10 +176,12 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 10a: Fijar una rueda para que no gire.
+     * Requisito 10a: Fijar una rueda para que no gire. Una rueda rebel no
+     * se deja bloquear (Requisito 17).
      * @param wheel Posición de la rueda a fijar (base 1).
      * @return La posición (base 1, ya ajustada) del eje que quedó
-     *         bloqueado, o -1 si no había ruedas para fijar.
+     *         bloqueado, o -1 si no había ruedas o la rueda no se deja
+     *         bloquear.
      */
     public int lock(int wheel) {
         if (wheels.isEmpty()) {
@@ -150,6 +189,10 @@ public class SlotMachine {
             return -1;
         }
         int index = adjustPos(wheel, wheels.size()) - 1;
+        if (!wheels.get(index).isLockable()) {
+            notifyError("La rueda " + (index + 1) + " no se deja bloquear.");
+            return -1;
+        }
         wheels.get(index).lock();
         this.ok = true;
         return index + 1;
@@ -170,19 +213,44 @@ public class SlotMachine {
     }
     
     /**
-     * Requisito 3a: Adicionar un símbolo. Las ruedas bloqueadas se omiten:
-     * su lista de colores no se modifica mientras estén lock().
+     * Requisito 3a: Adicionar un símbolo normal.
      * @param pos Posición del símbolo en las ruedas.
      * @param color Nombre del color en estándar CSS.
      */
     public void addSymbol(int pos, String color) {
-        if (wheels.isEmpty()) {
-            notifyError("No existen ruedas para adicionar símbolos.");
+        addSymbol(Symbol.NORMAL, pos, color);
+    }
+
+    /**
+     * Requisito 16: Adicionar un símbolo del tipo indicado. El símbolo
+     * queda registrado en la máquina (así las ruedas que se agreguen
+     * después también lo tienen) y se agrega a cada rueda que no esté
+     * bloqueada; las bloqueadas se omiten. Funciona aunque todavía no haya
+     * ruedas. Se rechaza, con ok() en false, si el tipo no existe o si ya
+     * hay un símbolo de ese color.
+     * @param type Tipo de símbolo ("normal", "ephemeral" o "shy").
+     * @param pos Posición del símbolo en las ruedas (base 1).
+     * @param color Nombre del color en estándar CSS.
+     */
+    public void addSymbol(String type, int pos, String color) {
+        if (Symbol.create(type, color, 0, 0) == null) {
+            notifyError("No existe el tipo de símbolo " + type + ".");
             return;
         }
+        for (String registered : symbolColors) {
+            if (registered.equalsIgnoreCase(color)) {
+                notifyError("Ya existe un símbolo de color " + color + ".");
+                return;
+            }
+        }
+
+        int index = adjustPos(pos, symbolColors.size() + 1) - 1;
+        symbolTypes.add(index, type.toLowerCase());
+        symbolColors.add(index, color);
+
         for (Wheel wheel : wheels) {
             if (!wheel.isLocked()) {
-                wheel.addSymbol(pos, color);
+                wheel.addSymbol(type, pos, color);
             }
         }
         this.ok = true;
@@ -190,15 +258,25 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 3b: Eliminar un símbolo por su color. Las ruedas bloqueadas
-     * se omiten.
+     * Requisito 3b: Eliminar un símbolo por su color. Se quita de los
+     * símbolos registrados y de las ruedas que no estén bloqueadas. Se
+     * rechaza si no hay ningún símbolo registrado de ese color.
      * @param symbol Color del símbolo a eliminar.
      */
     public void delSymbol(String symbol) {
-        if (wheels.isEmpty()) {
-            notifyError("No hay ruedas registradas.");
+        int index = -1;
+        for (int i = 0; i < symbolColors.size(); i++) {
+            if (symbolColors.get(i).equalsIgnoreCase(symbol)) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            notifyError("No existe un símbolo de color " + symbol + ".");
             return;
         }
+        symbolTypes.remove(index);
+        symbolColors.remove(index);
+
         for (Wheel wheel : wheels) {
             if (!wheel.isLocked()) {
                 wheel.delSymbol(symbol);
@@ -210,16 +288,21 @@ public class SlotMachine {
 
     /**
      * Requisito 4: Girar ALEATORIAMENTE todas las ruedas de la máquina que
-     * no estén bloqueadas (comportamiento de "tirón" de casino).
+     * no estén bloqueadas (comportamiento de "tirón" de casino). Las
+     * ruedas giran de izquierda a derecha, para que una lefty copie a su
+     * vecina ya girada. Cada rueda, al terminar, aplica los efectos del
+     * giro con finishSpin(...).
      */
     public void spin() {
         if (wheels.isEmpty()) {
             notifyError("No hay ruedas para girar.");
             return;
         }
-        for (Wheel w : wheels) {
+        for (int i = 0; i < wheels.size(); i++) {
+            Wheel w = wheels.get(i);
             if (!w.isLocked()) {
                 w.spin();
+                w.finishSpin(i > 0 ? wheels.get(i - 1) : null);
             }
         }
         this.ok = true;
@@ -245,6 +328,7 @@ public class SlotMachine {
         }
 
         w.spin();
+        w.finishSpin(index > 0 ? wheels.get(index - 1) : null);
         this.ok = true;
         refreshVisibility();
     }
@@ -257,6 +341,9 @@ public class SlotMachine {
      * con pausa (Requisito de Usabilidad 1, ciclo 2). Rechazada si el eje
      * está bloqueado. Si la máquina está visible, al terminar el giro se
      * consulta isJackpot(), que muestra el aviso de JACKPOT si se ganó.
+     * Si steps es mayor que 0 cuenta como un giro: al final se aplican sus
+     * efectos con finishSpin(...) (la lefty copia, el ephemeral se encoge,
+     * el shy alterna).
      * @param wheel Posición de la rueda a girar (base 1).
      * @param steps Número de pasos a rotar (no puede ser negativo).
      */
@@ -285,6 +372,9 @@ public class SlotMachine {
                 pause();
             }
         }
+        if (steps > 0) {
+            w.finishSpin(index > 0 ? wheels.get(index - 1) : null);
+        }
         refreshVisibility();
         if (this.isVisible) {
             isJackpot();
@@ -295,7 +385,9 @@ public class SlotMachine {
     /**
      * Requisito 12: Dejar la máquina en una configuración dada de colores.
      * La operación es atómica: primero se valida todo (tamaño, bloqueos,
-     * existencia de colores) y solo si todo es correcto se aplica.
+     * existencia de colores) y solo si todo es correcto se aplica. No es
+     * un giro (pone un color exacto), pero cada símbolo que queda visible
+     * cuenta como seleccionado.
      * @param setSymbols Arreglo con el color deseado para cada rueda.
      */
     public void spin(String[] setSymbols) {
@@ -322,6 +414,7 @@ public class SlotMachine {
 
         for (int i = 0; i < wheels.size(); i++) {
             wheels.get(i).setVisibleColor(setSymbols[i]);
+            wheels.get(i).select();
         }
 
         this.ok = true;
@@ -329,8 +422,12 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 9: Intercambiar dos ruedas de posición manteniendo los ejes estáticos.
-     * Rechazada si cualquiera de los dos ejes involucrados está bloqueado.
+     * Requisito 9: Intercambiar dos ruedas de posición manteniendo los ejes
+     * estáticos. Se intercambian las ruedas completas (su tipo, sus
+     * símbolos y su estado): cada una pasa al eje de la otra. Toda la
+     * lógica está en este método. Se rechaza si las posiciones no son
+     * válidas, si alguna rueda está bloqueada o si alguna no se deja
+     * intercambiar (la rebel, Requisito 17).
      * @param wheel1 Posición de la primera rueda (desde 1).
      * @param wheel2 Posición de la segunda rueda (desde 1).
      */
@@ -339,23 +436,22 @@ public class SlotMachine {
             notifyError("Se necesitan al menos dos ruedas para intercambiar.");
             return;
         }
-        
         if (wheel1 < 1 || wheel1 > wheels.size() || wheel2 < 1 || wheel2 > wheels.size()) {
             notifyError("Posiciones de rueda inválidas.");
             return;
         }
 
-        int index1 = wheel1 - 1;
-        int index2 = wheel2 - 1;
+        Wheel w1 = wheels.get(wheel1 - 1);
+        Wheel w2 = wheels.get(wheel2 - 1);
 
-        if (index1 == index2) {
-            this.ok = true;
+        if (!w1.isSwappable()) {
+            notifyError("La rueda " + wheel1 + " no se deja intercambiar.");
             return;
         }
-
-        Wheel w1 = wheels.get(index1);
-        Wheel w2 = wheels.get(index2);
-
+        if (!w2.isSwappable()) {
+            notifyError("La rueda " + wheel2 + " no se deja intercambiar.");
+            return;
+        }
         if (w1.isLocked()) {
             notifyError("El eje " + wheel1 + " está bloqueado y no puede modificarse.");
             return;
@@ -364,8 +460,17 @@ public class SlotMachine {
             notifyError("El eje " + wheel2 + " está bloqueado y no puede modificarse.");
             return;
         }
+        if (wheel1 == wheel2) {
+            this.ok = true;
+            return;
+        }
 
-        w1.swapContentWith(w2);
+        int x1 = w1.getXPosition();
+        int x2 = w2.getXPosition();
+        wheels.set(wheel1 - 1, w2);
+        wheels.set(wheel2 - 1, w1);
+        w1.updateAxisPosition(x2);
+        w2.updateAxisPosition(x1);
 
         this.ok = true;
         refreshVisibility();
@@ -373,7 +478,8 @@ public class SlotMachine {
 
     /**
      * Deja visible en una rueda específica el símbolo del color indicado.
-     * Rechazada si el eje está bloqueado.
+     * Rechazada si el eje está bloqueado. No es un giro, pero el símbolo
+     * cuenta como seleccionado (aunque ya estuviera visible).
      * @param wheel Posición de la rueda (base 1).
      * @param symbol Color del símbolo que se desea dejar visible.
      */
@@ -395,41 +501,34 @@ public class SlotMachine {
             notifyError("La rueda no contiene ese color.");
             return;
         }
+        w.select();
         this.ok = true;
         refreshVisibility();
     }
 
     /**
      * Requisito 5: Consultar los símbolos visibles de la máquina.
-     * @return Arreglo con los colores de los símbolos visibles.
+     * @return Arreglo con el color que se ve en cada rueda: "" si su
+     *         símbolo está escondido (shy) y "white" si no tiene símbolos.
      */
     public String[] configuration() {
         String[] config = new String[wheels.size()];
         for (int i = 0; i < wheels.size(); i++) {
-            Symbol active = wheels.get(i).getVisibleSymbol();
-            config[i] = (active != null) ? active.getColor() : "empty";
+            config[i] = wheels.get(i).getShownColor();
         }
         this.ok = true;
         return config;
     }
 
     /**
-     * Consultar los colores de símbolos REGISTRADOS en la máquina (los
-     * disponibles en cada rueda, no necesariamente los que se ven ahora).
-     * @return Arreglo con los colores disponibles en la primera rueda.
+     * Consultar los colores de los símbolos REGISTRADOS en la máquina (los
+     * disponibles, no necesariamente los que se ven ahora). Funciona
+     * aunque todavía no haya ruedas.
+     * @return Arreglo con los colores registrados, en orden.
      */
     public String[] symbols() {
-        if (wheels.isEmpty()) {
-            this.ok = false;
-            return new String[0];
-        }
-        ArrayList<Symbol> list = wheels.get(0).getSymbols();
-        String[] result = new String[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            result[i] = list.get(i).getColor();
-        }
         this.ok = true;
-        return result;
+        return symbolColors.toArray(new String[0]);
     }
     
     /**
@@ -437,14 +536,15 @@ public class SlotMachine {
      * la máquina (equivale al valor "k" del problema de la maratón: "the
      * number of distinct symbols in the sequence she can currently see").
      * SlotMachineContest lo usa como medida para comparar posiciones, no
-     * como condición de Jackpot (para eso está isJackpot()).
+     * como condición de Jackpot (para eso está isJackpot()). Un símbolo
+     * shy escondido no aporta color.
      * @return Número de colores visibles diferentes en este momento.
      */
     public int distinctSymbols() {
         Set<String> visible = new HashSet<>();
         for (Wheel w : wheels) {
             Symbol active = w.getVisibleSymbol();
-            if (active != null) {
+            if (active != null && !active.isHidden()) {
                 visible.add(active.getColor().toLowerCase());
             }
         }
@@ -454,9 +554,10 @@ public class SlotMachine {
 
     /**
      * Requisito 6: Consultar si la configuración VISIBLE es la ganadora (Jackpot).
-     * ok() queda en true si la consulta fue válida (>=2 ruedas, todas con
+     * ok() queda en true si la consulta fue válida (2 o más ruedas, todas con
      * símbolo visible), sin importar si el resultado es true o false; queda
-     * en false solo si la consulta no pudo evaluarse.
+     * en false solo si la consulta no pudo evaluarse. Un símbolo shy
+     * escondido no aporta color, así que impide el Jackpot.
      * @return true si todos los símbolos visibles coinciden.
      */
     public boolean isJackpot() {
@@ -505,11 +606,14 @@ public class SlotMachine {
     }
 
     /**
-     * Requisito 8: Terminar el simulador.
+     * Requisito 8: Terminar el simulador: lo oculta. No llama a
+     * System.exit(0), porque eso cerraría también BlueJ y cortaría las
+     * pruebas de unidad que llaman exit() al terminar (por ejemplo las
+     * compartidas de SlotMachineCC4Test).
      */
     public void exit() {
         makeInvisible();
-        System.exit(0);
+        this.ok = true;
     }
     
     /**
@@ -542,8 +646,7 @@ public class SlotMachine {
             ensureCanvasSize();
             updateFrame();
             for (Wheel wheel : wheels) {
-                Symbol active = wheel.getVisibleSymbol();
-                if (active != null) active.makeVisible();
+                wheel.showActive();
             }
         }
     }
@@ -577,7 +680,8 @@ public class SlotMachine {
     /**
      * Compara los colores visibles de todas las ruedas, sin efectos
      * secundarios (no cambia ok() ni muestra mensajes). La usan
-     * isJackpot() y updateFrame().
+     * isJackpot() y updateFrame(). Un símbolo shy escondido no muestra
+     * color, así que no coincide con ninguno.
      * @return true si hay al menos 2 ruedas y todas muestran el mismo color.
      */
     private boolean allSameColor() {
@@ -586,7 +690,8 @@ public class SlotMachine {
         if (first == null) return false;
         for (Wheel wheel : wheels) {
             Symbol active = wheel.getVisibleSymbol();
-            if (active == null || !first.getColor().equalsIgnoreCase(active.getColor())) {
+            if (active == null || active.isHidden()
+                    || !first.getColor().equalsIgnoreCase(active.getColor())) {
                 return false;
             }
         }
