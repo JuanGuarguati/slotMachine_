@@ -3,30 +3,58 @@ import java.util.Set;
 import java.util.HashSet;
 import javax.swing.JOptionPane;
 import shapes.Canvas;
+import shapes.Rectangle;
 
 /**
  * Simulador de Máquina Tragamonedas ajustado estrictamente a los métodos
  * asociados a los Requisitos Funcionales del laboratorio.
+ *
+ * La máquina es un ArrayList de ruedas; cada rueda es un ArrayList de
+ * símbolos y cada símbolo es un Rectangle de color (el color ES el
+ * símbolo). Detrás de las ruedas hay un Rectangle grande (el marco) de
+ * color fijo que se pone verde cuando hay Jackpot. No modifica el fondo
+ * del Canvas ni usa imágenes: todo se dibuja con Rectangle.
  * 
- * @version 5.0 
+ * @version 6.0 
  */
 public class SlotMachine {
     
     /**
-     * Paleta de colores predefinida para garantizar la asignación de n símbolos distintos.
+     * Paleta de 50 colores distintos para poder crear máquinas de hasta
+     * n = 50 (límite de la maratón). Los primeros son nombres de color y el
+     * resto códigos hexadecimales "#RRGGBB". No incluye blanco porque no se
+     * distinguiría sobre el lienzo blanco.
      */
     private static final String[] PALETTE = {
-        "red", "blue", "green", "yellow", "purple", "orange", 
-        "cyan", "magenta", "black", "white", "gray", "pink",
-        "darkgray", "lightgray", "brown"
+        "red", "blue", "green", "yellow", "purple", "orange", "cyan",
+        "magenta", "black", "gray", "pink", "darkgray", "lightgray", "brown",
+        "#8c0000", "#38518c", "#5b8c15", "#e600c9", "#5ce6ce", "#e68c22",
+        "#3000bf", "#51bf4d", "#bf1d53", "#00588c", "#858c38", "#73158c",
+        "#00e672", "#e6785c", "#2233e6", "#48bf00", "#bf4d99", "#1db9bf",
+        "#8c6900", "#5e388c", "#158c29", "#e6001d", "#5c96e6", "#ade622",
+        "#bf00bf", "#4dbf9d", "#bf601d", "#11008c", "#468c38", "#8c154c",
+        "#00ade6", "#e6df5c", "#a422e6", "#00bf47", "#bf564d", "#1d3fbf"
     };
 
-    private static final String NORMAL_BG = "yellow";
-    private static final String JACKPOT_BG = "green";
-    
+    /** Tamaño mínimo de la maratón (3 <= n <= 50). */
+    private static final int MIN_N = 3;
+
+    /** Tamaño máximo de la maratón (3 <= n <= 50). */
+    private static final int MAX_N = 50;
+
+    /** Separación horizontal, en píxeles, entre dos ejes consecutivos. */
+    private static final int AXIS_GAP = 36;
+
+    /** Color fijo del marco cuando no hay Jackpot. */
+    private static final String FRAME_COLOR = "#d4c08a";
+
+    /** Color del marco cuando hay Jackpot (ganador). */
+    private static final String JACKPOT_COLOR = "#006400";
+
     private ArrayList<Wheel> wheels;
     private boolean isVisible;
     private boolean ok;
+    private Rectangle frame;
 
     /**
      * Requisito 1: Crear una máquina tragamonedas vacía.
@@ -35,16 +63,20 @@ public class SlotMachine {
         this.wheels = new ArrayList<>();
         this.isVisible = false;
         this.ok = true;
+        this.frame = new Rectangle();
+        this.frame.moveHorizontal(-20);
+        this.frame.moveVertical(40);
     }
     
     /**
      * Requisito 13 (Extensión): Crea una máquina de n ruedas y n símbolos,
-     * inicializada aleatoriamente.
-     * @param n Cantidad de ruedas y símbolos distintos.
+     * inicializada aleatoriamente. Igual que en la maratón, n debe estar
+     * entre 3 y 50; si no, la máquina queda vacía y ok() es false.
+     * @param n Cantidad de ruedas y símbolos distintos (3 <= n <= 50).
      */
     public SlotMachine(int n) {
         this(); 
-        if (n <= 0 || n > PALETTE.length) {
+        if (n < MIN_N || n > MAX_N) {
             this.ok = false;
             return;
         }
@@ -223,7 +255,8 @@ public class SlotMachine {
      * rueda `wheel` por `steps` posiciones" tal como en la máquina física.
      * Si el simulador está visible, cada paso se muestra individualmente
      * con pausa (Requisito de Usabilidad 1, ciclo 2). Rechazada si el eje
-     * está bloqueado.
+     * está bloqueado. Si la máquina está visible, al terminar el giro se
+     * consulta isJackpot(), que muestra el aviso de JACKPOT si se ganó.
      * @param wheel Posición de la rueda a girar (base 1).
      * @param steps Número de pasos a rotar (no puede ser negativo).
      */
@@ -252,8 +285,11 @@ public class SlotMachine {
                 pause();
             }
         }
-        this.ok = true;
         refreshVisibility();
+        if (this.isVisible) {
+            isJackpot();
+        }
+        this.ok = true;
     }
     
     /**
@@ -400,8 +436,8 @@ public class SlotMachine {
      * Consultar la cantidad de colores DISTINTOS VISIBLES actualmente en
      * la máquina (equivale al valor "k" del problema de la maratón: "the
      * number of distinct symbols in the sequence she can currently see").
-     * Por eso, y solo por eso, isJackpot() es equivalente a
-     * (distinctSymbols() == 1) cuando hay al menos 2 ruedas.
+     * SlotMachineContest lo usa como medida para comparar posiciones, no
+     * como condición de Jackpot (para eso está isJackpot()).
      * @return Número de colores visibles diferentes en este momento.
      */
     public int distinctSymbols() {
@@ -435,7 +471,7 @@ public class SlotMachine {
             }
         }
 
-        boolean jackpot = isCurrentlyJackpot();
+        boolean jackpot = allSameColor();
         this.ok = true;
 
         if (jackpot && this.isVisible) {
@@ -461,10 +497,9 @@ public class SlotMachine {
      */
     public void makeInvisible() {
         this.isVisible = false;
+        frame.makeInvisible();
         for (Wheel wheel : wheels) {
             wheel.makeInvisible();
-            Symbol active = wheel.getVisibleSymbol();
-            if (active != null) active.makeInvisible();
         }
         this.ok = true;
     }
@@ -498,17 +533,18 @@ public class SlotMachine {
     }
 
     /**
-     * Actualiza la visualización de los símbolos en pantalla, el tamaño
-     * del lienzo y el color de fondo (según haya o no Jackpot).
+     * Actualiza la visualización: tamaño del lienzo, marco y símbolos. El
+     * marco se dibuja primero y los símbolos después, para que los
+     * cuadrados de color queden por encima del marco.
      */
     private void refreshVisibility() {
         if (this.isVisible) {
             ensureCanvasSize();
+            updateFrame();
             for (Wheel wheel : wheels) {
                 Symbol active = wheel.getVisibleSymbol();
                 if (active != null) active.makeVisible();
             }
-            updateEnvironment();
         }
     }
 
@@ -518,33 +554,39 @@ public class SlotMachine {
      */
     private void ensureCanvasSize() {
         if (wheels.isEmpty()) return;
-        int requiredWidth = 150 + (wheels.size() - 1) * 80;
+        int requiredWidth = 120 + (wheels.size() - 1) * AXIS_GAP;
         Canvas.getCanvas().ensureSize(requiredWidth, 250);
     }
 
     /**
-     * Ajusta el color de fondo del Canvas: verde si la configuración visible
-     * actual es Jackpot, amarillo (normal) en caso contrario. No recrea el
-     * Canvas, solo cambia su color de fondo.
+     * Ajusta el marco para que cubra todas las ruedas y le pone el color
+     * fijo, o verde si la configuración visible es Jackpot. Si no hay
+     * ruedas, el marco se oculta.
      */
-    private void updateEnvironment() {
-        Canvas.getCanvas().setBackgroundColor(isCurrentlyJackpot() ? JACKPOT_BG : NORMAL_BG);
+    private void updateFrame() {
+        if (wheels.isEmpty()) {
+            frame.makeInvisible();
+            return;
+        }
+        int width = (wheels.size() - 1) * AXIS_GAP + 50;
+        frame.changeSize(50, width);
+        frame.changeColor(allSameColor() ? JACKPOT_COLOR : FRAME_COLOR);
+        frame.makeVisible();
     }
 
     /**
-     * Verificación interna de Jackpot, sin efectos secundarios (no toca ok(),
-     * no muestra diálogos). Usada para decidir el color de fondo en cada
-     * refresco de pantalla.
+     * Compara los colores visibles de todas las ruedas, sin efectos
+     * secundarios (no cambia ok() ni muestra mensajes). La usan
+     * isJackpot() y updateFrame().
+     * @return true si hay al menos 2 ruedas y todas muestran el mismo color.
      */
-    private boolean isCurrentlyJackpot() {
+    private boolean allSameColor() {
         if (wheels.size() < 2) return false;
-        String targetColor = null;
+        Symbol first = wheels.get(0).getVisibleSymbol();
+        if (first == null) return false;
         for (Wheel wheel : wheels) {
-            Symbol s = wheel.getVisibleSymbol();
-            if (s == null) return false;
-            if (targetColor == null) {
-                targetColor = s.getColor();
-            } else if (!targetColor.equalsIgnoreCase(s.getColor())) {
+            Symbol active = wheel.getVisibleSymbol();
+            if (active == null || !first.getColor().equalsIgnoreCase(active.getColor())) {
                 return false;
             }
         }
@@ -568,7 +610,7 @@ public class SlotMachine {
      */
     private void recalculateAxes() {
         for (int i = 0; i < wheels.size(); i++) {
-            int correctX = 50 + (i * 80);
+            int correctX = 50 + (i * AXIS_GAP);
             wheels.get(i).updateAxisPosition(correctX);
         }
     }

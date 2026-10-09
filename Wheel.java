@@ -1,14 +1,13 @@
 import java.util.ArrayList;
 import java.util.Random;
-import shapes.Rectangle;
 
 /**
  * Representa una rueda (eje físico) de la máquina tragamonedas.
- * Gestiona la lista de símbolos, el símbolo actualmente visible, su
- * coordenada estática (el eje físico) y el marco/ventana decorativos
- * que dan la apariencia de máquina tragamonedas.
+ * Gestiona la lista de símbolos (cada uno es un Rectangle de color), el
+ * índice del símbolo actualmente visible y su coordenada estática (el eje
+ * físico). Visualmente solo se ven los cuadrados de color.
  * 
- * @version 4.0 
+ * @version 5.0 
  */
 public class Wheel {
     private ArrayList<Symbol> symbols;
@@ -16,11 +15,6 @@ public class Wheel {
     private int xPosition;
     private boolean locked;
     private Random random;
-
-    // Elementos puramente decorativos: dan el aspecto de "ventana" del eje.
-    // No almacenan ningún símbolo ni color de juego.
-    private Rectangle frame;
-    private Rectangle windowBackground;
 
     /**
      * Construye una nueva rueda anclada a una posición horizontal fija.
@@ -32,18 +26,6 @@ public class Wheel {
         this.xPosition = xPosition;
         this.locked = false;
         this.random = new Random();
-
-        this.frame = new Rectangle();
-        this.frame.changeColor("black");
-        this.frame.changeSize(60, 60);
-        this.frame.moveHorizontal(xPosition - 70);
-        this.frame.moveVertical(40);
-
-        this.windowBackground = new Rectangle();
-        this.windowBackground.changeColor("white");
-        this.windowBackground.changeSize(50, 50);
-        this.windowBackground.moveHorizontal((xPosition + 5) - 70);
-        this.windowBackground.moveVertical(45);
     }
 
     /**
@@ -191,8 +173,7 @@ public class Wheel {
     }
 
     /**
-     * Actualiza la posición física del eje y arrastra todos sus símbolos
-     * y su marco/ventana decorativos.
+     * Actualiza la posición física del eje y arrastra todos sus símbolos.
      * @param newX La nueva coordenada X del eje.
      */
     public void updateAxisPosition(int newX) {
@@ -203,25 +184,22 @@ public class Wheel {
         for (Symbol s : symbols) {
             s.shiftHorizontal(deltaX);
         }
-        frame.moveHorizontal(deltaX);
-        windowBackground.moveHorizontal(deltaX);
     }
 
     /**
-     * Hace visible el marco/ventana decorativos de este eje.
-     * (La visibilidad del símbolo activo la controla SlotMachine.)
+     * Hace visible el eje: muestra el cuadrado de color del símbolo activo.
      */
     public void makeVisible() {
-        frame.makeVisible();
-        windowBackground.makeVisible();
+        Symbol active = getVisibleSymbol();
+        if (active != null) active.makeVisible();
     }
 
     /**
-     * Oculta el marco/ventana decorativos de este eje.
+     * Oculta el eje: oculta el cuadrado de color del símbolo activo.
      */
     public void makeInvisible() {
-        frame.makeInvisible();
-        windowBackground.makeInvisible();
+        Symbol active = getVisibleSymbol();
+        if (active != null) active.makeInvisible();
     }
 
     /**

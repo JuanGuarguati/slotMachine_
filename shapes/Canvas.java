@@ -191,7 +191,11 @@ public class Canvas{
             case "darkgray":  return Color.darkGray;
             case "lightgray": return Color.lightGray;
             case "brown":     return new Color(139, 69, 19);
-            default:          return Color.black;
+            default:
+                if (colorString.startsWith("#")) {
+                    return Color.decode(colorString);
+                }
+                return Color.black;
         }
     }
 

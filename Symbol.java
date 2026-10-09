@@ -23,7 +23,7 @@ public class Symbol {
         this.color = color;
         this.isVisible = false;
         this.shape = new Rectangle();
-        this.shape.changeSize(40, 40);   // cuadrado real: el color ES el símbolo
+        this.shape.changeSize(30, 30);   // cuadrado real: el color ES el símbolo
         this.shape.changeColor(color);
         this.shape.moveHorizontal(x - 60);
         this.shape.moveVertical(y - 50);
