@@ -11,6 +11,14 @@ Los diagramas terminados están en `diagramas/`, para copiarlos en Astah:
 
 ## 1. Diagrama de clases
 
+### Reglas generales
+- **Todo lo `static` va subrayado** (en Astah: propiedad *static*). En `SlotMachine`: `PALETTE`, `MIN_N`, `MAX_N`, `AXIS_GAP`, `FRAME_COLOR`, `JACKPOT_COLOR`. En `SlotMachineContest`: `MIN_N`, `MAX_N`. En `Canvas`: `canvasSingleton` y `getCanvas()`. Y todas las constantes y fábricas `create` de `Wheel` y `Symbol`.
+- **Los atributos que apuntan a una clase nuestra se dibujan como relación, no como atributo.** Se borran de la caja y queda la composición (◆) con su nombre y multiplicidad:
+  - `SlotMachine ◆— Wheel`: `- wheels 0..*` (es el `ArrayList<Wheel>`).
+  - `Wheel ◆— Symbol`: `- symbols 0..*` (es el `ArrayList<Symbol>`).
+  - `SlotMachine ◆— Rectangle` (`- frame 1`), `Wheel ◆— Rectangle` (`- marker 1`), `Symbol ◆— Shape` (`# shape 1`), `EphemeralSymbol ◆— Circle` (`- circle 1`).
+- `symbolTypes` y `symbolColors` quedan como atributos, porque son listas de `String` (no hay una clase nuestra a la cual relacionarlas).
+
 ### Symbol
 - Marcarla como **abstracta** (en Astah: propiedad *abstract*; el nombre sale en cursiva).
 - **Cambiar** el atributo `shape : Rectangle` por `# shape : Shape`, y su composición ahora va hacia `Shape` (`1 — 1`).
