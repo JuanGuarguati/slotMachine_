@@ -29,7 +29,7 @@ public class SlotMachineContestCTest {
 
         // Act & Assert
         try {
-            contest.simulate(2);
+            contest.simulate(3);
             assertTrue(true); 
         } catch (Exception e) {
             fail("El método simulate arrojó una excepción inesperada: " + e.getMessage());
