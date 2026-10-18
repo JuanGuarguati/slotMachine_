@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="704" viewBox="0 0 1040 704" font-family="Arial, sans-serif" font-size="12">
+<defs><marker id="fill" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#333"/></marker><marker id="open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10" fill="none" stroke="#333"/></marker></defs>
+<rect width="1040" height="704" fill="#fff"/>
+<text x="20" y="28" font-size="15" font-weight="bold">isJackpot()</text>
+<rect x="258" y="344" width="684" height="124" fill="none" stroke="#777" stroke-width="1"/>
+<path d="M258 344 h42 v12 l-6 6 h-36 Z" fill="#eef2f7" stroke="#777"/>
+<text x="263" y="357" font-weight="bold" font-size="11">loop</text>
+<text x="308" y="357" font-size="11">[wheel en wheels]</text>
+<rect x="258" y="528" width="224" height="74" fill="none" stroke="#777" stroke-width="1"/>
+<path d="M258 528 h35 v12 l-6 6 h-29 Z" fill="#eef2f7" stroke="#777"/>
+<text x="263" y="541" font-weight="bold" font-size="11">opt</text>
+<text x="301" y="541" font-size="11">[jackpot  y  isVisible]</text>
+<rect x="250" y="150" width="700" height="494" fill="none" stroke="#777" stroke-width="1"/>
+<path d="M250 150 h35 v12 l-6 6 h-29 Z" fill="#eef2f7" stroke="#777"/>
+<text x="255" y="163" font-weight="bold" font-size="11">alt</text>
+<text x="293" y="163" font-size="11">[menos de 2 ruedas o alguna sin símbolo]</text>
+<line x1="250" y1="262" x2="950" y2="262" stroke="#777" stroke-dasharray="5 4"/>
+<text x="258" y="276" font-size="11">[se puede evaluar]</text>
+<rect x="35.0" y="48" width="110" height="30" fill="#fffbe6" stroke="#333"/>
+<text x="90" y="67" text-anchor="middle" text-decoration="underline">:Usuario</text>
+<line x1="90" y1="78" x2="90" y2="684" stroke="#999" stroke-dasharray="4 4"/>
+<rect x="265.0" y="48" width="110" height="30" fill="#fffbe6" stroke="#333"/>
+<text x="320" y="67" text-anchor="middle" text-decoration="underline">:SlotMachine</text>
+<line x1="320" y1="78" x2="320" y2="684" stroke="#999" stroke-dasharray="4 4"/>
+<rect x="495.0" y="48" width="110" height="30" fill="#fffbe6" stroke="#333"/>
+<text x="550" y="67" text-anchor="middle" text-decoration="underline">w : Wheel</text>
+<line x1="550" y1="78" x2="550" y2="684" stroke="#999" stroke-dasharray="4 4"/>
+<rect x="725.0" y="48" width="110" height="30" fill="#fffbe6" stroke="#333"/>
+<text x="780" y="67" text-anchor="middle" text-decoration="underline">s : Symbol</text>
+<line x1="780" y1="78" x2="780" y2="684" stroke="#999" stroke-dasharray="4 4"/>
+<line x1="90" y1="120" x2="320" y2="120" stroke="#333" marker-end="url(#fill)"/>
+<text x="98" y="115">isJackpot()</text>
+<path d="M320 186 h30 v16 h-30" fill="none" stroke="#333" marker-end="url(#fill)"/>
+<text x="356" y="198">ok = false</text>
+<line x1="320" y1="232" x2="90" y2="232" stroke="#333" stroke-dasharray="6 4" marker-end="url(#open)"/>
+<text x="98" y="227">false</text>
+<path d="M320 298 h30 v16 h-30" fill="none" stroke="#333" marker-end="url(#fill)"/>
+<text x="356" y="310">jackpot = allSameColor()</text>
+<line x1="320" y1="386" x2="550" y2="386" stroke="#333" marker-end="url(#fill)"/>
+<text x="328" y="381">getVisibleSymbol()</text>
+<line x1="320" y1="416" x2="780" y2="416" stroke="#333" marker-end="url(#fill)"/>
+<text x="328" y="411">isHidden() / getColor()</text>
+<path d="M792 432 h164.8 v22 h-164.8 Z" fill="#fdecef" stroke="#c99"/>
+<text x="800" y="447" font-size="11">shy escondido: sin color</text>
+<path d="M320 482 h30 v16 h-30" fill="none" stroke="#333" marker-end="url(#fill)"/>
+<text x="356" y="494">ok = true</text>
+<path d="M320 564 h30 v16 h-30" fill="none" stroke="#333" marker-end="url(#fill)"/>
+<text x="356" y="576">mensaje &quot;¡ESTADO GANADOR (JACKPOT)!&quot;</text>
+<line x1="320" y1="622" x2="90" y2="622" stroke="#333" stroke-dasharray="6 4" marker-end="url(#open)"/>
+<text x="98" y="617">jackpot</text>
+</svg>

@@ -5,7 +5,8 @@ Se parte del Astah del Ciclo 3 (ya corregido con `astah-cambios-ciclo3.md`). Aba
 Los diagramas terminados están en `diagramas/`, para copiarlos en Astah:
 - Clases: `diagrama-clases-ciclo4.png` (en azul lo nuevo o cambiado).
 - Secuencia nuevos: `secuencia-addWheel.png`, `secuencia-addSymbol.png`, `secuencia-spin.png`.
-- Secuencia actualizados: `secuencia-spin-steps.png`, `secuencia-swap.png`, `secuencia-lock.png`, `secuencia-delWheel.png`, `secuencia-placeSymbol.png`, `secuencia-configuration.png`.
+- Secuencia actualizados: `secuencia-spin-steps.png`, `secuencia-spin-wheel.png`, `secuencia-spin-symbols.png`, `secuencia-swap.png`, `secuencia-lock.png`, `secuencia-delWheel.png`, `secuencia-placeSymbol.png`, `secuencia-delSymbol.png`, `secuencia-configuration.png`, `secuencia-distinctSymbols.png`, `secuencia-isJackpot.png`.
+- Los 14 son operaciones de `SlotMachine`. El recuadro rosado es una **nota** UML (herramienta Nota en Astah).
 
 ---
 
@@ -100,5 +101,9 @@ Las cuatro con generalización hacia `Wheel`.
 - **`lock(wheel)`**: agregar la pregunta `isLockable()` antes de `lock()`.
 - **`delWheel(pos)`**: agregar la pregunta `isRemovable()` antes de `wheels.remove`.
 - **`placeSymbol(wheel, symbol)`**: después de `setVisibleColor`, la llamada `select()` → `selected()`.
+- **`spin(wheel)`**: después de `spin()` de la rueda, `finishSpin(left)`.
+- **`spin(setSymbols)`**: después de cada `setVisibleColor`, `select()` → `selected()`.
+- **`delSymbol(symbol)`**: busca el color en `symbolColors`; si no está, error; si está, lo quita de `symbolTypes` y `symbolColors` y llama `wheel.delSymbol(symbol)` en las ruedas no bloqueadas.
+- **`distinctSymbols()`** e **`isJackpot()`**: preguntan `isHidden()` al símbolo visible; un shy escondido no aporta color.
 - **`configuration()`**: *loop* con `getShownColor()` en vez de `getVisibleSymbol().getColor()`.
 - **`exit()`**: quitar la llamada a `System.exit(0)`.
