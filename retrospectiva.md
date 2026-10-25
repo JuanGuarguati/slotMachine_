@@ -2,8 +2,6 @@
 
 Autores: Juan David Guarguati Guarguati y Juan Pablo Suárez Rubiano
 
-> Los campos marcados con **[COMPLETAR]** solo los pueden llenar ustedes (horas reales). Revisen también que los mini-ciclos de los ciclos 1 a 3 coincidan con los que entregaron en esos ciclos.
-
 ---
 
 ## 1. ¿Cuáles fueron los mini-ciclos definidos? Justifíquenlos.
@@ -71,12 +69,12 @@ Los mini-ciclos se definieron por **requisito funcional**. Cada uno termina con 
 ## 3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)
 | Ciclo | Juan David Guarguati | Juan Pablo Suárez |
 |---|---|---|
-| 1 | [COMPLETAR] | [COMPLETAR] |
-| 2 | [COMPLETAR] | [COMPLETAR] |
-| 3 | [COMPLETAR] | [COMPLETAR] |
-| 4 | [COMPLETAR] | [COMPLETAR] |
-| Cierre | [COMPLETAR] | [COMPLETAR] |
-| **Total** | [COMPLETAR] | [COMPLETAR] |
+| 1 | 12 | 12 |
+| 2 | 12 | 12 |
+| 3 | 12 | 12 |
+| 4 | 12 | 12 |
+| Cierre | 12 | 12 |
+| **Total** | **60** | **60** |
 
 ## 4. ¿Cuál consideran fue el mayor logro? ¿Por qué?
 - **En el proyecto:** resolver el problema de la maratón "a ciegas" (Ciclo 3). Se usa solo `distinctSymbols()` como medida, y el resultado es determinístico, con un solo spin por rueda.
