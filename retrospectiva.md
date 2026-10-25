@@ -50,7 +50,7 @@ Los mini-ciclos se definieron por **requisito funcional**. Cada uno termina con 
 ### Cierre (Ciclo 5): calidad con herramientas modernas
 | Mini-ciclo | Contenido | Justificación |
 |---|---|---|
-| 5.1 | Pasar el proyecto a **VS Code** como proyecto Maven (`pom.xml`, `src/main/java`, `src/test/java`) | Maven deja ejecutar las pruebas, JaCoCo y PMD con un solo comando, igual en cualquier computador. |
+| 5.1 | Pasar el proyecto a **VS Code** (`src/main/java`, `src/test/java`, JUnit en `lib/`, configuración en `.vscode`) | VS Code reconoce el proyecto solo, sin herramientas extra, y deja correr las pruebas, con y sin cubrimiento, desde el panel Testing. |
 | 5.2 | Tomar los **resultados iniciales** de JaCoCo y PMD sin cambiar nada | Para tener con qué comparar y decidir qué arreglar. |
 | 5.3 | Crear **`SlotMachineC1Test`** y **`SlotMachineC3Test`** | Lo pide la entrega (`SlotMachine*Test` 1, 2, 3, 4 y Contest), y además cubren casos de error que no se probaban. |
 | 5.4 | Corregir las **11 violaciones de prioridad alta** de PMD | Es la meta del análisis estático. |
@@ -107,7 +107,7 @@ La **refactorización apoyada en pruebas**. Antes de agregar los tipos nuevos ca
 - Oracle. (s.f.). *Inheritance (The Java Tutorials)*. https://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html
 - Oracle. (s.f.). *How to Write Doc Comments for the Javadoc Tool*. https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html
 - ICPC. (2025). *Problem I: Slot Machine*. ICPC World Finals.
-- JaCoCo. (s.f.). *JaCoCo Maven Plug-in*. https://www.jacoco.org/jacoco/trunk/doc/maven.html
+- JaCoCo. (s.f.). *JaCoCo Java Code Coverage Library*. https://www.jacoco.org/jacoco/
 - PMD. (s.f.). *Java Rules*. https://docs.pmd-code.org/latest/pmd_rules_java.html
 - Microsoft. (s.f.). *Java in Visual Studio Code*. https://code.visualstudio.com/docs/languages/java
 - Anthropic. (2026). *Claude*. Usado para revisar el diseño, implementar y verificar las pruebas. https://claude.ai

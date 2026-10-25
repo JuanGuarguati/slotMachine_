@@ -7,11 +7,11 @@ date: "Octubre 2026"
 
 # 1. Qué se midió
 
-Se midió el **cubrimiento de código** de las pruebas de unidad con **JaCoCo 0.8.12**, integrado en Maven (`pom.xml`).
+Se midió el **cubrimiento de código** de las pruebas de unidad con **JaCoCo 0.8.12**.
 
 - **Pruebas que cuentan:** `SlotMachineC1Test`, `C2Test`, `C3Test`, `C4Test`, `CC2Test`, `CC4Test`, `ContestTest` y `ContestCTest`.
 - **Prueba que no cuenta:** `SlotMachineAcceptanceTest`. Necesita a una persona que mire la pantalla y responda, así que se ejecuta aparte desde VS Code.
-- **Cómo se genera:** en VS Code, terminal, `mvn clean test`. El informe queda en `target/site/jacoco/index.html`.
+- **Cómo se genera:** en VS Code, panel **Testing**, opción **Run Test with Coverage**. VS Code usa JaCoCo y muestra el porcentaje de cada clase y las líneas cubiertas en el editor. El informe HTML (`index.html`) es el reporte de JaCoCo de esa misma ejecución.
 - **Meta del enunciado:** más del **75 %** de cubrimiento de código.
 
 # 2. Resultado inicial

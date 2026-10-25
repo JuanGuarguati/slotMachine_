@@ -7,11 +7,11 @@ date: "Octubre 2026"
 
 # 1. Qué se analizó
 
-Se revisó el código fuente con **PMD 7.7.0**, integrado en Maven (`pom.xml`).
+Se revisó el código fuente con **PMD 7.7.0**.
 
 - **Reglas:** todas las categorías de reglas de Java que trae PMD: *bestpractices, codestyle, design, documentation, errorprone, multithreading, performance* y *security*.
 - **Código analizado:** las 16 clases del simulador (`src/main/java`, incluido `shapes`).
-- **Cómo se genera:** en VS Code, terminal, `mvn pmd:pmd`. El informe queda en `target/reports/pmd.html`, agrupado por prioridad.
+- **Cómo se genera:** en la terminal de VS Code, con PMD descargado de pmd.github.io: `pmd check -d src/main/java -R <reglas> -f html -r pmd.html`, donde `<reglas>` son las 8 categorías de arriba separadas por coma (`category/java/bestpractices.xml,category/java/codestyle.xml,...`). El informe queda en `pmd.html`, con la prioridad de cada violación.
 - **Meta del enunciado:** cumplir **todas las reglas de prioridad alta (rojo)**, que en PMD es la **prioridad 1**.
 
 # 2. Resultado inicial
