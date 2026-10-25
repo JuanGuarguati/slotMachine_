@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EphemeralSymbol.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">EphemeralSymbol.java</span></div><h1>EphemeralSymbol.java</h1><pre class="source lang-java linenums">import shapes.Circle;
+
+/**
+ * Símbolo efímero (Requisito 18): se dibuja como un círculo de color que,
+ * en cada giro de su rueda, se encoge hasta quedar como un punto. Empieza
+ * con 30 px de diámetro, pierde 4 px por giro y se queda en 2 px. El
+ * círculo se encoge hacia su centro, así que siempre queda en medio de la
+ * celda. Aunque sea un punto, su color sigue contando.
+ *
+ * @version 4.1 (Ciclo 4)
+ */
+public class EphemeralSymbol extends Symbol {
+
+    /** Píxeles que pierde el diámetro en cada giro. */
+    private static final int SHRINK_STEP = 4;
+
+    /** Diámetro final: el símbolo queda como un punto. */
+    private static final int POINT_SIZE = 2;
+
+    /**
+     * La misma figura que Symbol.shape, vista como Circle para poder
+     * cambiarle el diámetro (changeSize de Circle recibe un solo valor).
+     */
+    private Circle circle;
+    private int diameter;
+
+    /**
+     * Construye un símbolo efímero del tamaño completo de la celda.
+     * @param color Color del símbolo.
+     * @param x Coordenada X del eje de la rueda.
+     * @param y Coordenada Y de referencia de la rueda.
+     */
+    public EphemeralSymbol(String color, int x, int y) {
+<span class="fc" id="L34">        super(color);</span>
+<span class="fc" id="L35">        diameter = SIZE;</span>
+<span class="fc" id="L36">        circle = new Circle();</span>
+<span class="fc" id="L37">        circle.changeSize(diameter);</span>
+<span class="fc" id="L38">        circle.changeColor(color);</span>
+<span class="fc" id="L39">        circle.moveHorizontal(x - 10);</span>
+<span class="fc" id="L40">        circle.moveVertical(y - 50);</span>
+<span class="fc" id="L41">        shape = circle;</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Su rueda giró: el círculo se encoge SHRINK_STEP píxeles, sin bajar
+     * de POINT_SIZE. Se mueve la mitad de lo que se encoge para que siga
+     * centrado en la celda.
+     */
+    @Override
+    public void spun() {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (diameter &lt;= POINT_SIZE) return;</span>
+<span class="fc" id="L52">        int newDiameter = Math.max(POINT_SIZE, diameter - SHRINK_STEP);</span>
+<span class="fc" id="L53">        int offset = (diameter - newDiameter) / 2;</span>
+<span class="fc" id="L54">        diameter = newDiameter;</span>
+<span class="fc" id="L55">        circle.changeSize(diameter);</span>
+<span class="fc" id="L56">        circle.moveHorizontal(offset);</span>
+<span class="fc" id="L57">        circle.moveVertical(offset);</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Consulta el diámetro actual del círculo.
+     * @return Diámetro en píxeles.
+     */
+    public int getDiameter() {
+<span class="fc" id="L65">        return diameter;</span>
+    }
+
+    /**
+     * Consulta si el símbolo ya quedó reducido a un punto.
+     * @return true si su diámetro es el mínimo.
+     */
+    public boolean isPoint() {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        return diameter == POINT_SIZE;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

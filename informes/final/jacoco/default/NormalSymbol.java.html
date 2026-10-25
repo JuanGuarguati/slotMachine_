@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NormalSymbol.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">NormalSymbol.java</span></div><h1>NormalSymbol.java</h1><pre class="source lang-java linenums">import shapes.Rectangle;
+
+/**
+ * Símbolo normal: un cuadrado de color que no cambia.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public class NormalSymbol extends Symbol {
+
+    /**
+     * Construye un símbolo normal: un cuadrado de SIZE x SIZE.
+     * @param color Color del símbolo.
+     * @param x Coordenada X del eje de la rueda.
+     * @param y Coordenada Y de referencia de la rueda.
+     */
+    public NormalSymbol(String color, int x, int y) {
+<span class="fc" id="L18">        super(color);</span>
+<span class="fc" id="L19">        Rectangle square = new Rectangle();</span>
+<span class="fc" id="L20">        square.changeSize(SIZE, SIZE);</span>
+<span class="fc" id="L21">        square.changeColor(color);</span>
+<span class="fc" id="L22">        square.moveHorizontal(x - 60);</span>
+<span class="fc" id="L23">        square.moveVertical(y - 50);</span>
+<span class="fc" id="L24">        shape = square;</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Un símbolo normal no cambia al girar su rueda.
+     */
+    @Override
+    public void spun() {
+        // El símbolo normal no reacciona al giro.
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Un símbolo normal no cambia al ser seleccionado.
+     */
+    @Override
+    public void selected() {
+        // El símbolo normal no reacciona a la selección.
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Un símbolo normal nunca se esconde.
+     * @param hidden Se ignora.
+     */
+    @Override
+    public void setHidden(boolean hidden) {
+        // El símbolo normal no tiene estado escondido.
+<span class="fc" id="L50">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

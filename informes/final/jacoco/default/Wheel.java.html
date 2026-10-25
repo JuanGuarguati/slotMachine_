@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Wheel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Wheel.java</span></div><h1>Wheel.java</h1><pre class="source lang-java linenums">import java.util.ArrayList;
+import java.util.Random;
+import shapes.Rectangle;
+
+/**
+ * Rueda de la máquina. Guarda lo común a todos los tipos de rueda
+ * (normal, lefty, rebel y reverse).
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public abstract class Wheel {
+
+    /** Tipo de rueda normal. */
+    public static final String NORMAL = &quot;normal&quot;;
+
+    /** Tipo de rueda zurda: copia a la rueda de su izquierda. */
+    public static final String LEFTY = &quot;lefty&quot;;
+
+    /** Tipo de rueda rebelde: no se bloquea, intercambia ni elimina. */
+    public static final String REBEL = &quot;rebel&quot;;
+
+    /** Tipo de rueda inversa: gira hacia atrás (propuesta propia). */
+    public static final String REVERSE = &quot;reverse&quot;;
+
+    /** Lo que muestra configuration() en una rueda sin símbolos. */
+    public static final String EMPTY_COLOR = &quot;white&quot;;
+
+    /** Coordenada Y de referencia de los símbolos de la rueda. */
+    private static final int SYMBOL_Y = 100;
+
+    /** Coordenada Y superior de la marca de tipo (debajo del marco). */
+    private static final int MARKER_Y = 112;
+
+    private ArrayList&lt;Symbol&gt; symbols;
+    private int visibleSymbolIndex;
+    private int xPosition;
+    private boolean locked;
+    private Random random;
+    private Rectangle marker;
+
+    /**
+     * Construye la parte común de una rueda anclada a una posición
+     * horizontal. La forma de su marca la pone create(...).
+     * @param xPosition La coordenada X del eje.
+     */
+<span class="fc" id="L47">    protected Wheel(int xPosition) {</span>
+<span class="fc" id="L48">        this.symbols = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L49">        this.visibleSymbolIndex = 0;</span>
+<span class="fc" id="L50">        this.xPosition = xPosition;</span>
+<span class="fc" id="L51">        this.locked = false;</span>
+<span class="fc" id="L52">        this.random = new Random();</span>
+<span class="fc" id="L53">        this.marker = new Rectangle();</span>
+<span class="fc" id="L54">        this.marker.moveHorizontal(xPosition - 60);</span>
+<span class="fc" id="L55">        this.marker.moveVertical(MARKER_Y - 15);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Fábrica de ruedas: crea una rueda del tipo indicado y le da a su
+     * marca la forma de ese tipo.
+     * @param type Tipo de rueda (&quot;normal&quot;, &quot;lefty&quot;, &quot;rebel&quot; o &quot;reverse&quot;);
+     *        no distingue mayúsculas.
+     * @param xPosition Coordenada X del eje.
+     * @return La rueda creada, o null si el tipo no existe.
+     */
+    public static Wheel create(String type, int xPosition) {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (type == null) return null;</span>
+        Wheel wheel;
+<span class="fc bfc" id="L69" title="All 5 branches covered.">        switch (type.toLowerCase()) {</span>
+<span class="fc" id="L70">            case NORMAL:  wheel = new NormalWheel(xPosition); break;</span>
+<span class="fc" id="L71">            case LEFTY:   wheel = new LeftyWheel(xPosition); break;</span>
+<span class="fc" id="L72">            case REBEL:   wheel = new RebelWheel(xPosition); break;</span>
+<span class="fc" id="L73">            case REVERSE: wheel = new ReverseWheel(xPosition); break;</span>
+<span class="fc" id="L74">            default:      return null;</span>
+        }
+<span class="fc" id="L76">        wheel.styleMarker(wheel.marker);</span>
+<span class="fc" id="L77">        return wheel;</span>
+    }
+
+    /**
+     * Da tamaño, color y posición a la marca que identifica el tipo de
+     * rueda. La marca empieza en la esquina izquierda, debajo del símbolo.
+     * @param marker La marca a la que se le da estilo.
+     */
+    protected abstract void styleMarker(Rectangle marker);
+
+    /**
+     * Adiciona un símbolo del tipo indicado en una posición.
+     * @param type Tipo de símbolo.
+     * @param pos Posición de inserción (base 1).
+     * @param color Color del nuevo símbolo.
+     * @return true si se agregó; false si el tipo de símbolo no existe.
+     */
+    public boolean addSymbol(String type, int pos, String color) {
+<span class="fc" id="L95">        Symbol newSymbol = Symbol.create(type, color, this.xPosition, SYMBOL_Y);</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (newSymbol == null) return false;</span>
+<span class="fc" id="L97">        int index = pos - 1;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (index &lt;= 0) {</span>
+<span class="fc" id="L99">            symbols.add(0, newSymbol);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        } else if (index &gt;= symbols.size()) {</span>
+<span class="fc" id="L101">            symbols.add(newSymbol);</span>
+        } else {
+<span class="nc" id="L103">            symbols.add(index, newSymbol);</span>
+        }
+<span class="fc" id="L105">        return true;</span>
+    }
+
+    /**
+     * Elimina todos los símbolos de un color en esta rueda y los borra
+     * del lienzo.
+     * @param symbolColor El color del símbolo a eliminar.
+     */
+    public void delSymbol(String symbolColor) {
+<span class="fc" id="L114">        hideActive();</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (Symbol s : symbols) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            if (s.getColor().equalsIgnoreCase(symbolColor)) {</span>
+<span class="fc" id="L117">                s.makeInvisible();</span>
+            }
+<span class="fc" id="L119">        }</span>
+<span class="fc" id="L120">        symbols.removeIf(s -&gt; s.getColor().equalsIgnoreCase(symbolColor));</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (visibleSymbolIndex &gt;= symbols.size()) {</span>
+<span class="nc" id="L122">            visibleSymbolIndex = 0;</span>
+        }
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Consulta, sin modificar la rueda, si tiene un símbolo del color
+     * indicado.
+     * @param color Color a buscar.
+     * @return true si la rueda tiene registrado ese color.
+     */
+    public boolean hasColor(String color) {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        for (Symbol s : symbols) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            if (s.getColor().equalsIgnoreCase(color)) {</span>
+<span class="fc" id="L135">                return true;</span>
+            }
+<span class="fc" id="L137">        }</span>
+<span class="nc" id="L138">        return false;</span>
+    }
+
+    /**
+     * Mueve la rueda a una posición ALEATORIA. Solo mueve: los efectos del
+     * giro se aplican después con finishSpin(...).
+     */
+    public void spin() {
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (symbols.isEmpty()) return;</span>
+<span class="fc" id="L147">        hideActive();</span>
+<span class="fc" id="L148">        visibleSymbolIndex = random.nextInt(symbols.size());</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * Rota la rueda `steps` posiciones hacia adelante, en forma cíclica.
+     * Solo mueve: los efectos del giro se aplican después con
+     * finishSpin(...). No verifica lock(): eso lo hace SlotMachine.
+     * @param steps Cantidad de posiciones a avanzar (negativo retrocede).
+     */
+    public void rotate(int steps) {
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (symbols.isEmpty()) return;</span>
+<span class="fc" id="L159">        hideActive();</span>
+<span class="fc" id="L160">        int size = symbols.size();</span>
+<span class="fc" id="L161">        visibleSymbolIndex = ((visibleSymbolIndex + steps) % size + size) % size;</span>
+<span class="fc" id="L162">    }</span>
+
+    /**
+     * Termina un giro de la rueda: avisa a todos sus símbolos que la rueda
+     * giró (el ephemeral se encoge) y luego aplica lo que hace el tipo de
+     * rueda al quedar quieta, con afterSpin(...).
+     * @param left La rueda de la izquierda, o null si es la primera.
+     */
+    public void finishSpin(Wheel left) {
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        for (Symbol s : symbols) {</span>
+<span class="fc" id="L172">            s.spun();</span>
+<span class="fc" id="L173">        }</span>
+<span class="fc" id="L174">        afterSpin(left);</span>
+<span class="fc" id="L175">    }</span>
+
+    /**
+     * Lo que hace el tipo de rueda al quedar quieta después de un giro.
+     * Por defecto selecciona el símbolo que quedó visible (el shy
+     * alterna). La rueda lefty lo redefine para copiar a su vecina.
+     * @param left La rueda de la izquierda, o null si es la primera.
+     */
+    protected void afterSpin(Wheel left) {
+<span class="fc" id="L184">        select();</span>
+<span class="fc" id="L185">    }</span>
+
+    /**
+     * Avisa al símbolo visible que fue seleccionado.
+     */
+    public void select() {
+<span class="fc" id="L191">        Symbol active = getVisibleSymbol();</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        if (active != null) active.selected();</span>
+<span class="fc" id="L193">    }</span>
+
+    /**
+     * Deja visible el primer símbolo del color indicado. Solo mueve: no es
+     * un giro ni una selección.
+     * @param color Color a buscar.
+     * @return true si se encontró el color; false si no existe.
+     */
+    public boolean setVisibleColor(String color) {
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        for (int i = 0; i &lt; symbols.size(); i++) {</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">            if (symbols.get(i).getColor().equalsIgnoreCase(color)) {</span>
+<span class="fc" id="L204">                hideActive();</span>
+<span class="fc" id="L205">                visibleSymbolIndex = i;</span>
+<span class="fc" id="L206">                return true;</span>
+            }
+        }
+<span class="fc" id="L209">        return false;</span>
+    }
+
+    /**
+     * Obtiene el símbolo que la rueda muestra actualmente.
+     * @return El símbolo visible o null si la rueda está vacía.
+     */
+    public Symbol getVisibleSymbol() {
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (symbols.isEmpty()) return null;</span>
+<span class="fc" id="L218">        return symbols.get(visibleSymbolIndex);</span>
+    }
+
+    /**
+     * Consulta el color que se ve en la ventana de la rueda.
+     * @return El color del símbolo visible; &quot;&quot; si está escondido (shy);
+     *         EMPTY_COLOR (&quot;white&quot;) si la rueda no tiene símbolos.
+     */
+    public String getShownColor() {
+<span class="fc" id="L227">        Symbol active = getVisibleSymbol();</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (active == null) return EMPTY_COLOR;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (active.isHidden()) return &quot;&quot;;</span>
+<span class="fc" id="L230">        return active.getColor();</span>
+    }
+
+
+    /**
+     * Consulta si la rueda se deja bloquear.
+     * @return true por defecto.
+     */
+    public boolean isLockable() {
+<span class="fc" id="L239">        return true;</span>
+    }
+
+    /**
+     * Consulta si la rueda se deja intercambiar.
+     * @return true por defecto.
+     */
+    public boolean isSwappable() {
+<span class="fc" id="L247">        return true;</span>
+    }
+
+    /**
+     * Consulta si la rueda se deja eliminar.
+     * @return true por defecto.
+     */
+    public boolean isRemovable() {
+<span class="fc" id="L255">        return true;</span>
+    }
+
+    /**
+     * Fija la rueda para que no gire. SlotMachine pregunta antes
+     * isLockable().
+     */
+    public void lock() {
+<span class="fc" id="L263">        this.locked = true;</span>
+<span class="fc" id="L264">    }</span>
+
+    /**
+     * Libera la rueda para que pueda girar.
+     */
+    public void unlock() {
+<span class="fc" id="L270">        this.locked = false;</span>
+<span class="fc" id="L271">    }</span>
+
+    /**
+     * Consulta si la rueda está bloqueada.
+     * @return true si está bloqueada.
+     */
+    public boolean isLocked() {
+<span class="fc" id="L278">        return locked;</span>
+    }
+
+    /**
+     * Consulta los símbolos registrados en la rueda.
+     * @return Lista de símbolos de la rueda.
+     */
+    public ArrayList&lt;Symbol&gt; getSymbols() {
+<span class="fc" id="L286">        return symbols;</span>
+    }
+
+    /**
+     * Consulta la coordenada horizontal del eje.
+     * @return Posición X.
+     */
+    public int getXPosition() {
+<span class="fc" id="L294">        return xPosition;</span>
+    }
+
+    /**
+     * Mueve el eje a una nueva posición y arrastra sus símbolos y su marca.
+     * @param newX La nueva coordenada X del eje.
+     */
+    public void updateAxisPosition(int newX) {
+<span class="fc" id="L302">        int deltaX = newX - this.xPosition;</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">        if (deltaX == 0) return;</span>
+<span class="fc" id="L304">        this.xPosition = newX;</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        for (Symbol s : symbols) {</span>
+<span class="fc" id="L306">            s.shiftHorizontal(deltaX);</span>
+<span class="fc" id="L307">        }</span>
+<span class="fc" id="L308">        marker.moveHorizontal(deltaX);</span>
+<span class="fc" id="L309">    }</span>
+
+    /**
+     * Hace visible la rueda: su marca de tipo y su símbolo activo.
+     */
+    public void makeVisible() {
+<span class="fc" id="L315">        marker.makeVisible();</span>
+<span class="fc" id="L316">        showActive();</span>
+<span class="fc" id="L317">    }</span>
+
+    /**
+     * Dibuja solo el símbolo activo (la marca no cambia al girar).
+     */
+    public void showActive() {
+<span class="fc" id="L323">        Symbol active = getVisibleSymbol();</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        if (active != null) active.makeVisible();</span>
+<span class="fc" id="L325">    }</span>
+
+    /**
+     * Oculta la rueda: su marca de tipo y su símbolo activo.
+     */
+    public void makeInvisible() {
+<span class="fc" id="L331">        marker.makeInvisible();</span>
+<span class="fc" id="L332">        hideActive();</span>
+<span class="fc" id="L333">    }</span>
+
+    /**
+     * Oculta el símbolo activo, si lo hay.
+     */
+    private void hideActive() {
+<span class="fc" id="L339">        Symbol active = getVisibleSymbol();</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        if (active != null) active.makeInvisible();</span>
+<span class="fc" id="L341">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

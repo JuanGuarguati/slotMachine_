@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Rectangle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">shapes</a> &gt; <span class="el_source">Rectangle.java</span></div><h1>Rectangle.java</h1><pre class="source lang-java linenums">package shapes;
+
+/**
+ * Rectángulo que se dibuja en el lienzo.
+ *
+ * @author Michael Kolling y David J. Barnes (modificada por el equipo)
+ * @version 5.0
+ */
+public class Rectangle extends Shape{
+
+    public static final int EDGES = 4;
+
+    private int height;
+    private int width;
+
+    /**
+     * Create a new rectangle at default position with default color.
+     */
+    public Rectangle(){
+<span class="fc" id="L20">        super(70, 15, &quot;magenta&quot;);</span>
+<span class="fc" id="L21">        height = 30;</span>
+<span class="fc" id="L22">        width = 40;</span>
+<span class="fc" id="L23">    }</span>
+
+    /**
+     * Change the size to the new size.
+     * @param newHeight the new height in pixels. newHeight must be &gt;=0.
+     * @param newWidth the new width in pixels. newWidth must be &gt;=0.
+     */
+    public void changeSize(int newHeight, int newWidth) {
+<span class="fc" id="L31">        erase();</span>
+<span class="fc" id="L32">        height = newHeight;</span>
+<span class="fc" id="L33">        width = newWidth;</span>
+<span class="fc" id="L34">        draw();</span>
+<span class="fc" id="L35">    }</span>
+
+    /**
+     * Draw the rectangle with current specifications on screen.
+     */
+    @Override
+    protected void draw() {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if(isVisible) {</span>
+<span class="fc" id="L43">            Canvas canvas = Canvas.getCanvas();</span>
+<span class="fc" id="L44">            canvas.draw(this, color,</span>
+                new java.awt.Rectangle(xPosition, yPosition, width, height));
+<span class="fc" id="L46">            canvas.wait(10);</span>
+        }
+<span class="fc" id="L48">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
