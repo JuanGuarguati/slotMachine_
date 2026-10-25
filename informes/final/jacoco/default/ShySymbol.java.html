@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShySymbol.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">ShySymbol.java</span></div><h1>ShySymbol.java</h1><pre class="source lang-java linenums">import shapes.Triangle;
+
+/**
+ * Símbolo tímido: un triángulo que se esconde y reaparece cada vez que
+ * lo seleccionan.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public class ShySymbol extends Symbol {
+
+    private boolean hidden;
+
+    /**
+     * Construye un símbolo tímido, inicialmente sin esconder.
+     * @param color Color del símbolo.
+     * @param x Coordenada X del eje de la rueda.
+     * @param y Coordenada Y de referencia de la rueda.
+     */
+    public ShySymbol(String color, int x, int y) {
+<span class="fc" id="L21">        super(color);</span>
+<span class="fc" id="L22">        hidden = false;</span>
+<span class="fc" id="L23">        Triangle triangle = new Triangle();</span>
+<span class="fc" id="L24">        triangle.changeSize(SIZE, SIZE);</span>
+<span class="fc" id="L25">        triangle.changeColor(color);</span>
+<span class="fc" id="L26">        triangle.moveHorizontal(x - 115);</span>
+<span class="fc" id="L27">        triangle.moveVertical(y - 50);</span>
+<span class="fc" id="L28">        shape = triangle;</span>
+<span class="fc" id="L29">    }</span>
+
+    /**
+     * Fue seleccionado en la rueda: alterna entre escondido y visible.
+     */
+    @Override
+    public void selected() {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        setHidden(!hidden);</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Consulta si el símbolo está escondido.
+     * @return true si está escondido.
+     */
+    @Override
+    public boolean isHidden() {
+<span class="fc" id="L45">        return hidden;</span>
+    }
+
+    /**
+     * Pone el símbolo escondido o no escondido. Si la rueda se está
+     * dibujando, el cambio se ve de inmediato.
+     * @param hidden true para esconderlo.
+     */
+    @Override
+    public void setHidden(boolean hidden) {
+<span class="fc" id="L55">        this.hidden = hidden;</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (hidden) {</span>
+<span class="fc" id="L57">            shape.makeInvisible();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        } else if (isVisible()) {</span>
+<span class="nc" id="L59">            shape.makeVisible();</span>
+        }
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Dibuja el triángulo, salvo que el símbolo esté escondido.
+     */
+    @Override
+    protected void show() {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!hidden) {</span>
+<span class="nc" id="L69">            super.show();</span>
+        }
+<span class="nc" id="L71">    }</span>
+
+    /**
+     * Un símbolo tímido no cambia al girar su rueda.
+     */
+    @Override
+    public void spun() {
+        // El tímido solo reacciona a la selección.
+<span class="fc" id="L79">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

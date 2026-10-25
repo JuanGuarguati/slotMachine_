@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SlotMachineContest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">SlotMachineContest.java</span></div><h1>SlotMachineContest.java</h1><pre class="source lang-java linenums">import java.util.ArrayList;
+
+/**
+ * Clase controladora para solucionar el problema de la maratón Slot Machine.
+ *
+ * Respeta los requisitos de diseño del Ciclo 3: de SlotMachine solo usa,
+ * como testing tool, SlotMachine(n), spin(wheel, steps) y
+ * distinctSymbols(); y como simulador, makeVisible(). Nunca lee los
+ * colores de la máquina: trabaja &quot;a ciegas&quot;, como en la maratón.
+ *
+ * Estrategia determinística: la rueda 1 es la referencia (su color es el
+ * color objetivo). Para cada una de las demás ruedas se calcula cuántos
+ * pasos le faltan para mostrar ese mismo color, y luego se aplica
+ * spin(wheel, steps) una sola vez por rueda.
+ *
+ * Cómo se calculan los pasos de una rueda: se prueba cada diferencia de
+ * posición d (0..n-1) con la rueda 1. Con esa diferencia, ambas ruedas
+ * giran juntas una vuelta completa (n pasos) y se suma distinctSymbols()
+ * en cada paso. Con la d correcta las dos ruedas muestran siempre el mismo
+ * color y la rueda nunca aporta un color extra; con una d incorrecta, en
+ * algún paso aporta un color que ninguna otra rueda tiene (las otras n-2
+ * ruedas no alcanzan a cubrir los n colores), así que la suma es mayor.
+ * Por eso la suma mínima corresponde siempre, y solo, a la d correcta.
+ * Como todo son vueltas completas, la máquina queda igual que al inicio.
+ *
+ * @version 6.0 (2026-10)
+ */
+<span class="fc" id="L28">public class SlotMachineContest {</span>
+
+    /** Tamaño mínimo de la maratón (n mínimo 3). */
+    private static final int MIN_N = 3;
+
+    /** Tamaño máximo de la maratón (n máximo 50). */
+    private static final int MAX_N = 50;
+
+    /**
+     * Requisito 14: Solucionar el problema de la maratón.
+     * La máquina permanece invisible durante todo el proceso.
+     * El tamaño se valida aquí, sin preguntarle ok() a la máquina.
+     * @param n Tamaño de la máquina (n ruedas y n símbolos, entre 3 y 50).
+     * @return Acciones {rueda, pasos} que llevan todas las ruedas al color
+     *         de la rueda 1, en el orden en que se aplicaron. Arreglo
+     *         vacío si n está fuera de 3..50.
+     */
+    public int[][] solve(int n) {
+<span class="fc bfc" id="L46" title="All 4 branches covered.">        if (n &lt; MIN_N || n &gt; MAX_N) {</span>
+<span class="fc" id="L47">            return new int[0][];</span>
+        }
+<span class="fc" id="L49">        SlotMachine tool = new SlotMachine(n);</span>
+
+        // 1. Calcular los pasos de cada rueda 2..n respecto a la rueda 1.
+<span class="fc" id="L52">        ArrayList&lt;int[]&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (int wheel = 2; wheel &lt;= n; wheel++) {</span>
+<span class="fc" id="L54">            int bestSteps = 0;</span>
+<span class="fc" id="L55">            int bestSum = Integer.MAX_VALUE;</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            for (int d = 0; d &lt; n; d++) {</span>
+<span class="fc" id="L57">                int sum = 0;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                for (int step = 0; step &lt; n; step++) {</span>
+<span class="fc" id="L59">                    sum += tool.distinctSymbols();</span>
+<span class="fc" id="L60">                    tool.spin(1, 1);</span>
+<span class="fc" id="L61">                    tool.spin(wheel, 1);</span>
+                }
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                if (sum &lt; bestSum) {</span>
+<span class="fc" id="L64">                    bestSum = sum;</span>
+<span class="fc" id="L65">                    bestSteps = d;</span>
+                }
+<span class="fc" id="L67">                tool.spin(wheel, 1);</span>
+            }
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (bestSteps &gt; 0) {</span>
+<span class="fc" id="L70">                list.add(new int[]{wheel, bestSteps});</span>
+            }
+        }
+<span class="fc" id="L73">        int[][] actions = list.toArray(new int[0][]);</span>
+
+        // 2. Aplicar un solo spin(wheel, steps) por rueda.
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int[] action : actions) {</span>
+<span class="fc" id="L77">            tool.spin(action[0], action[1]);</span>
+        }
+<span class="fc" id="L79">        return actions;</span>
+    }
+
+    /**
+     * Requisito 15: Simular visualmente la solución.
+     * Primero se calculan los pasos con la máquina todavía invisible
+     * (igual que en solve). Luego la máquina se hace visible y se ejecuta
+     * cada spin(wheel, steps) a la vista. Al llegar al Jackpot, la
+     * máquina lo anuncia con isJackpot().
+     * @param n Tamaño de la máquina (entre 3 y 50).
+     */
+    public void simulate(int n) {
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if (n &lt; MIN_N || n &gt; MAX_N) {</span>
+<span class="nc" id="L92">            return;</span>
+        }
+<span class="fc" id="L94">        SlotMachine simulator = new SlotMachine(n);</span>
+
+        // 1. Calcular los pasos de cada rueda 2..n con la máquina invisible.
+<span class="fc" id="L97">        ArrayList&lt;int[]&gt; actions = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (int wheel = 2; wheel &lt;= n; wheel++) {</span>
+<span class="fc" id="L99">            int bestSteps = 0;</span>
+<span class="fc" id="L100">            int bestSum = Integer.MAX_VALUE;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            for (int d = 0; d &lt; n; d++) {</span>
+<span class="fc" id="L102">                int sum = 0;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                for (int step = 0; step &lt; n; step++) {</span>
+<span class="fc" id="L104">                    sum += simulator.distinctSymbols();</span>
+<span class="fc" id="L105">                    simulator.spin(1, 1);</span>
+<span class="fc" id="L106">                    simulator.spin(wheel, 1);</span>
+                }
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                if (sum &lt; bestSum) {</span>
+<span class="fc" id="L109">                    bestSum = sum;</span>
+<span class="fc" id="L110">                    bestSteps = d;</span>
+                }
+<span class="fc" id="L112">                simulator.spin(wheel, 1);</span>
+            }
+<span class="fc bfc" id="L114" title="All 2 branches covered.">            if (bestSteps &gt; 0) {</span>
+<span class="fc" id="L115">                actions.add(new int[]{wheel, bestSteps});</span>
+            }
+        }
+
+        // 2. Mostrar la máquina y aplicar un spin(wheel, steps) por rueda.
+<span class="fc" id="L120">        simulator.makeVisible();</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        for (int[] action : actions) {</span>
+<span class="nc" id="L122">            simulator.spin(action[0], action[1]);</span>
+<span class="nc" id="L123">        }</span>
+<span class="fc" id="L124">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

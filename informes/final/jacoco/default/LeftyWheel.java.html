@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LeftyWheel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">LeftyWheel.java</span></div><h1>LeftyWheel.java</h1><pre class="source lang-java linenums">import shapes.Rectangle;
+
+/**
+ * Rueda zurda: al girar copia el estado de la rueda de su izquierda.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public class LeftyWheel extends Wheel {
+
+    /**
+     * Construye una rueda zurda.
+     * @param xPosition La coordenada X del eje.
+     */
+    public LeftyWheel(int xPosition) {
+<span class="fc" id="L16">        super(xPosition);</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * Al quedar quieta copia el estado de la rueda de la izquierda: su
+     * color visible y si está escondido. Si no puede copiar, se comporta
+     * como una rueda normal.
+     * @param left La rueda de la izquierda, o null si es la primera.
+     */
+    @Override
+    protected void afterSpin(Wheel left) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        Symbol leftSymbol = (left == null) ? null : left.getVisibleSymbol();</span>
+<span class="pc bpc" id="L28" title="1 of 4 branches missed.">        if (leftSymbol != null &amp;&amp; setVisibleColor(leftSymbol.getColor())) {</span>
+<span class="fc" id="L29">            getVisibleSymbol().setHidden(leftSymbol.isHidden());</span>
+        } else {
+<span class="fc" id="L31">            super.afterSpin(left);</span>
+        }
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Marca de la rueda zurda: cuadrado azul de 12x12 pegado a la izquierda.
+     * @param marker La marca a la que se le da estilo.
+     */
+    @Override
+    protected void styleMarker(Rectangle marker) {
+<span class="fc" id="L41">        marker.changeSize(12, 12);</span>
+<span class="fc" id="L42">        marker.changeColor(&quot;blue&quot;);</span>
+<span class="fc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

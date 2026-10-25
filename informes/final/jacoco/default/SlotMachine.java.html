@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SlotMachine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">SlotMachine.java</span></div><h1>SlotMachine.java</h1><pre class="source lang-java linenums">import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import javax.swing.JOptionPane;
+import shapes.Canvas;
+import shapes.Rectangle;
+
+/**
+ * Simulador de la máquina tragamonedas: maneja ruedas y símbolos de
+ * distintos tipos y avisa cuando hay Jackpot.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public final class SlotMachine {
+    
+    /**
+     * Paleta de 50 colores distintos para poder crear máquinas de hasta
+     * n = 50 (límite de la maratón). Los primeros son nombres de color y el
+     * resto códigos hexadecimales &quot;#RRGGBB&quot;. No incluye blanco porque no se
+     * distinguiría sobre el lienzo blanco.
+     */
+<span class="fc" id="L23">    private static final String[] PALETTE = {</span>
+        &quot;red&quot;, &quot;blue&quot;, &quot;green&quot;, &quot;yellow&quot;, &quot;purple&quot;, &quot;orange&quot;, &quot;cyan&quot;,
+        &quot;magenta&quot;, &quot;black&quot;, &quot;gray&quot;, &quot;pink&quot;, &quot;darkgray&quot;, &quot;lightgray&quot;, &quot;brown&quot;,
+        &quot;#8c0000&quot;, &quot;#38518c&quot;, &quot;#5b8c15&quot;, &quot;#e600c9&quot;, &quot;#5ce6ce&quot;, &quot;#e68c22&quot;,
+        &quot;#3000bf&quot;, &quot;#51bf4d&quot;, &quot;#bf1d53&quot;, &quot;#00588c&quot;, &quot;#858c38&quot;, &quot;#73158c&quot;,
+        &quot;#00e672&quot;, &quot;#e6785c&quot;, &quot;#2233e6&quot;, &quot;#48bf00&quot;, &quot;#bf4d99&quot;, &quot;#1db9bf&quot;,
+        &quot;#8c6900&quot;, &quot;#5e388c&quot;, &quot;#158c29&quot;, &quot;#e6001d&quot;, &quot;#5c96e6&quot;, &quot;#ade622&quot;,
+        &quot;#bf00bf&quot;, &quot;#4dbf9d&quot;, &quot;#bf601d&quot;, &quot;#11008c&quot;, &quot;#468c38&quot;, &quot;#8c154c&quot;,
+        &quot;#00ade6&quot;, &quot;#e6df5c&quot;, &quot;#a422e6&quot;, &quot;#00bf47&quot;, &quot;#bf564d&quot;, &quot;#1d3fbf&quot;
+    };
+
+    /** Tamaño mínimo de la maratón (n entre 3 y 50). */
+    private static final int MIN_N = 3;
+
+    /** Tamaño máximo de la maratón (n entre 3 y 50). */
+    private static final int MAX_N = 50;
+
+    /** Separación horizontal, en píxeles, entre dos ejes consecutivos. */
+    private static final int AXIS_GAP = 36;
+
+    /** Color fijo del marco cuando no hay Jackpot. */
+    private static final String FRAME_COLOR = &quot;#d4c08a&quot;;
+
+    /** Color del marco cuando hay Jackpot (ganador). */
+    private static final String JACKPOT_COLOR = &quot;#006400&quot;;
+
+    private ArrayList&lt;Wheel&gt; wheels;
+    private ArrayList&lt;String&gt; symbolTypes;
+    private ArrayList&lt;String&gt; symbolColors;
+    private boolean isVisible;
+    private boolean ok;
+    private Rectangle frame;
+
+    /**
+     * Requisito 1: Crear una máquina tragamonedas vacía.
+     */
+<span class="fc" id="L59">    public SlotMachine() {</span>
+<span class="fc" id="L60">        this.wheels = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L61">        this.symbolTypes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L62">        this.symbolColors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L63">        this.isVisible = false;</span>
+<span class="fc" id="L64">        this.ok = true;</span>
+<span class="fc" id="L65">        this.frame = new Rectangle();</span>
+<span class="fc" id="L66">        this.frame.moveHorizontal(-20);</span>
+<span class="fc" id="L67">        this.frame.moveVertical(40);</span>
+<span class="fc" id="L68">    }</span>
+    
+    /**
+     * Requisito 13 (Extensión): Crea una máquina de n ruedas y n símbolos,
+     * inicializada aleatoriamente. Igual que en la maratón, n debe estar
+     * entre 3 y 50; si no, la máquina queda vacía y ok() es false. Todas
+     * las ruedas y los símbolos son de tipo normal.
+     * @param n Cantidad de ruedas y símbolos distintos (entre 3 y 50).
+     */
+    public SlotMachine(int n) {
+<span class="fc" id="L78">        this(); </span>
+<span class="fc bfc" id="L79" title="All 4 branches covered.">        if (n &lt; MIN_N || n &gt; MAX_N) {</span>
+<span class="fc" id="L80">            this.ok = false;</span>
+<span class="fc" id="L81">            return;</span>
+        }
+
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (int i = 1; i &lt;= n; i++) {</span>
+<span class="fc" id="L85">            this.addWheel(i);</span>
+        }
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L89">            this.addSymbol(1, PALETTE[i]);</span>
+        }
+
+<span class="fc" id="L92">        java.util.Random rand = new java.util.Random();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (int i = 1; i &lt;= n; i++) {</span>
+<span class="fc" id="L94">            int randomSteps = rand.nextInt(n * 3); </span>
+<span class="fc" id="L95">            this.spin(i, randomSteps); </span>
+        }
+        
+<span class="fc" id="L98">        this.ok = true;</span>
+<span class="fc" id="L99">    }</span>
+        
+    /**
+     * Requisito 2a: Adicionar una rueda normal.
+     * @param pos Posición de inserción (base 1).
+     */
+    public void addWheel(int pos) {
+<span class="fc" id="L106">        addWheel(Wheel.NORMAL, pos);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Requisito 16: Adicionar una rueda del tipo indicado. La rueda nace
+     * con una copia de todos los símbolos registrados en la máquina, en el
+     * mismo orden y del mismo tipo. Si el tipo no existe, no se agrega
+     * nada y ok() queda en false.
+     * @param type Tipo de rueda (&quot;normal&quot;, &quot;lefty&quot;, &quot;rebel&quot; o &quot;reverse&quot;).
+     * @param pos Posición de inserción (base 1).
+     */
+    public void addWheel(String type, int pos) {
+<span class="fc" id="L118">        Wheel newWheel = Wheel.create(type, 0);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (newWheel == null) {</span>
+<span class="fc" id="L120">            notifyError(&quot;No existe el tipo de rueda &quot; + type + &quot;.&quot;);</span>
+<span class="fc" id="L121">            return;</span>
+        }
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int i = 0; i &lt; symbolColors.size(); i++) {</span>
+<span class="fc" id="L124">            newWheel.addSymbol(symbolTypes.get(i), i + 1, symbolColors.get(i));</span>
+        }
+
+<span class="fc" id="L127">        int index = adjustPos(pos, wheels.size() + 1) - 1;</span>
+<span class="fc" id="L128">        wheels.add(index, newWheel);</span>
+
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L131">            newWheel.makeVisible();</span>
+        }
+        
+<span class="fc" id="L134">        recalculateAxes(); </span>
+<span class="fc" id="L135">        this.ok = true;</span>
+<span class="fc" id="L136">        refreshVisibility();</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Requisito 2b: Eliminar una rueda. Una rueda rebel no se deja
+     * eliminar (Requisito 17).
+     * @param pos Posición de la rueda a eliminar (base 1).
+     */
+    public void delWheel(int pos) {
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (wheels.isEmpty()) {</span>
+<span class="fc" id="L146">            notifyError(&quot;No hay ruedas para eliminar.&quot;);</span>
+<span class="fc" id="L147">            return;</span>
+        }
+<span class="fc" id="L149">        int index = adjustPos(pos, wheels.size()) - 1;</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (!wheels.get(index).isRemovable()) {</span>
+<span class="fc" id="L151">            notifyError(&quot;La rueda &quot; + (index + 1) + &quot; no se deja eliminar.&quot;);</span>
+<span class="fc" id="L152">            return;</span>
+        }
+<span class="fc" id="L154">        Wheel removed = wheels.remove(index);</span>
+
+<span class="fc" id="L156">        removed.makeInvisible();</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (Symbol s : removed.getSymbols()) {</span>
+<span class="fc" id="L158">            s.makeInvisible();</span>
+<span class="fc" id="L159">        }</span>
+        
+<span class="fc" id="L161">        recalculateAxes();</span>
+<span class="fc" id="L162">        this.ok = true;</span>
+<span class="fc" id="L163">        refreshVisibility();</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * Requisito 10a: Fijar una rueda para que no gire. Una rueda rebel no
+     * se deja bloquear (Requisito 17).
+     * @param wheel Posición de la rueda a fijar (base 1).
+     * @return La posición (base 1, ya ajustada) del eje que quedó
+     *         bloqueado, o -1 si no había ruedas o la rueda no se deja
+     *         bloquear.
+     */
+    public int lock(int wheel) {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L176">            notifyError(&quot;No hay ruedas para fijar.&quot;);</span>
+<span class="nc" id="L177">            return -1;</span>
+        }
+<span class="fc" id="L179">        int index = adjustPos(wheel, wheels.size()) - 1;</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (!wheels.get(index).isLockable()) {</span>
+<span class="fc" id="L181">            notifyError(&quot;La rueda &quot; + (index + 1) + &quot; no se deja bloquear.&quot;);</span>
+<span class="fc" id="L182">            return -1;</span>
+        }
+<span class="fc" id="L184">        wheels.get(index).lock();</span>
+<span class="fc" id="L185">        this.ok = true;</span>
+<span class="fc" id="L186">        return index + 1;</span>
+    }
+    
+    /**
+     * Requisito 10b: Soltar una rueda previamente fijada.
+     * @param wheel Posición de la rueda a soltar (base 1).
+     */
+    public void unlock(int wheel) {
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L195">            notifyError(&quot;No hay ruedas para soltar.&quot;);</span>
+<span class="nc" id="L196">            return;</span>
+        }
+<span class="fc" id="L198">        int index = adjustPos(wheel, wheels.size()) - 1;</span>
+<span class="fc" id="L199">        wheels.get(index).unlock();</span>
+<span class="fc" id="L200">        this.ok = true;</span>
+<span class="fc" id="L201">    }</span>
+    
+    /**
+     * Requisito 3a: Adicionar un símbolo normal.
+     * @param pos Posición del símbolo en las ruedas.
+     * @param color Nombre del color en estándar CSS.
+     */
+    public void addSymbol(int pos, String color) {
+<span class="fc" id="L209">        addSymbol(Symbol.NORMAL, pos, color);</span>
+<span class="fc" id="L210">    }</span>
+
+    /**
+     * Requisito 16: Adicionar un símbolo del tipo indicado. El símbolo
+     * queda registrado en la máquina (así las ruedas que se agreguen
+     * después también lo tienen) y se agrega a cada rueda que no esté
+     * bloqueada; las bloqueadas se omiten. Funciona aunque todavía no haya
+     * ruedas. Se rechaza, con ok() en false, si el tipo no existe o si ya
+     * hay un símbolo de ese color.
+     * @param type Tipo de símbolo (&quot;normal&quot;, &quot;ephemeral&quot; o &quot;shy&quot;).
+     * @param pos Posición del símbolo en las ruedas (base 1).
+     * @param color Nombre del color en estándar CSS.
+     */
+    public void addSymbol(String type, int pos, String color) {
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        if (Symbol.create(type, color, 0, 0) == null) {</span>
+<span class="fc" id="L225">            notifyError(&quot;No existe el tipo de símbolo &quot; + type + &quot;.&quot;);</span>
+<span class="fc" id="L226">            return;</span>
+        }
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        for (String registered : symbolColors) {</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            if (registered.equalsIgnoreCase(color)) {</span>
+<span class="fc" id="L230">                notifyError(&quot;Ya existe un símbolo de color &quot; + color + &quot;.&quot;);</span>
+<span class="fc" id="L231">                return;</span>
+            }
+<span class="fc" id="L233">        }</span>
+
+<span class="fc" id="L235">        int index = adjustPos(pos, symbolColors.size() + 1) - 1;</span>
+<span class="fc" id="L236">        symbolTypes.add(index, type.toLowerCase());</span>
+<span class="fc" id="L237">        symbolColors.add(index, color);</span>
+
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">            if (!wheel.isLocked()) {</span>
+<span class="fc" id="L241">                wheel.addSymbol(type, pos, color);</span>
+            }
+<span class="fc" id="L243">        }</span>
+<span class="fc" id="L244">        this.ok = true;</span>
+<span class="fc" id="L245">        refreshVisibility();</span>
+<span class="fc" id="L246">    }</span>
+
+    /**
+     * Requisito 3b: Eliminar un símbolo por su color. Se quita de los
+     * símbolos registrados y de las ruedas que no estén bloqueadas. Se
+     * rechaza si no hay ningún símbolo registrado de ese color.
+     * @param symbol Color del símbolo a eliminar.
+     */
+    public void delSymbol(String symbol) {
+<span class="fc" id="L255">        int index = -1;</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        for (int i = 0; i &lt; symbolColors.size(); i++) {</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">            if (symbolColors.get(i).equalsIgnoreCase(symbol)) {</span>
+<span class="fc" id="L258">                index = i;</span>
+            }
+        }
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        if (index == -1) {</span>
+<span class="fc" id="L262">            notifyError(&quot;No existe un símbolo de color &quot; + symbol + &quot;.&quot;);</span>
+<span class="fc" id="L263">            return;</span>
+        }
+<span class="fc" id="L265">        symbolTypes.remove(index);</span>
+<span class="fc" id="L266">        symbolColors.remove(index);</span>
+
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">            if (!wheel.isLocked()) {</span>
+<span class="fc" id="L270">                wheel.delSymbol(symbol);</span>
+            }
+<span class="fc" id="L272">        }</span>
+<span class="fc" id="L273">        this.ok = true;</span>
+<span class="fc" id="L274">        refreshVisibility();</span>
+<span class="fc" id="L275">    }</span>
+
+    /**
+     * Requisito 4: Girar ALEATORIAMENTE todas las ruedas de la máquina que
+     * no estén bloqueadas (comportamiento de &quot;tirón&quot; de casino). Las
+     * ruedas giran de izquierda a derecha, para que una lefty copie a su
+     * vecina ya girada. Cada rueda, al terminar, aplica los efectos del
+     * giro con finishSpin(...).
+     */
+    public void spin() {
+<span class="fc bfc" id="L285" title="All 2 branches covered.">        if (wheels.isEmpty()) {</span>
+<span class="fc" id="L286">            notifyError(&quot;No hay ruedas para girar.&quot;);</span>
+<span class="fc" id="L287">            return;</span>
+        }
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        for (int i = 0; i &lt; wheels.size(); i++) {</span>
+<span class="fc" id="L290">            Wheel w = wheels.get(i);</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">            if (!w.isLocked()) {</span>
+<span class="fc" id="L292">                w.spin();</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">                w.finishSpin(i &gt; 0 ? wheels.get(i - 1) : null);</span>
+            }
+        }
+<span class="fc" id="L296">        this.ok = true;</span>
+<span class="fc" id="L297">        refreshVisibility();</span>
+<span class="fc" id="L298">    }</span>
+
+    /**
+     * Requisito 11: Rotar ALEATORIAMENTE una sola rueda.
+     * Rechazada si el eje está bloqueado.
+     * @param wheel Posición de la rueda a girar (base 1).
+     */
+    public void spin(int wheel) {
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L307">            notifyError(&quot;No hay ruedas para girar.&quot;);</span>
+<span class="nc" id="L308">            return;</span>
+        }
+<span class="fc" id="L310">        int index = adjustPos(wheel, wheels.size()) - 1;</span>
+<span class="fc" id="L311">        Wheel w = wheels.get(index);</span>
+
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">        if (w.isLocked()) {</span>
+<span class="nc" id="L314">            notifyError(&quot;El eje &quot; + (index + 1) + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L315">            return;</span>
+        }
+
+<span class="fc" id="L318">        w.spin();</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">        w.finishSpin(index &gt; 0 ? wheels.get(index - 1) : null);</span>
+<span class="fc" id="L320">        this.ok = true;</span>
+<span class="fc" id="L321">        refreshVisibility();</span>
+<span class="fc" id="L322">    }</span>
+    
+    /**
+     * Requisito 11: Rotar una rueda un número determinado de pasos, de
+     * forma DETERMINISTA y CÍCLICA (no aleatoria): equivale a &quot;rotar la
+     * rueda `wheel` por `steps` posiciones&quot; tal como en la máquina física.
+     * Si el simulador está visible, cada paso se muestra individualmente
+     * con pausa (Requisito de Usabilidad 1, ciclo 2). Rechazada si el eje
+     * está bloqueado. Si la máquina está visible, al terminar el giro se
+     * consulta isJackpot(), que muestra el aviso de JACKPOT si se ganó.
+     * Si steps es mayor que 0 cuenta como un giro: al final se aplican sus
+     * efectos con finishSpin(...) (la lefty copia, el ephemeral se encoge,
+     * el shy alterna).
+     * @param wheel Posición de la rueda a girar (base 1).
+     * @param steps Número de pasos a rotar (no puede ser negativo).
+     */
+    public void spin(int wheel, int steps) {
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L340">            notifyError(&quot;No hay ruedas para girar.&quot;);</span>
+<span class="nc" id="L341">            return;</span>
+        }
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        if (steps &lt; 0) {</span>
+<span class="fc" id="L344">            notifyError(&quot;El número de pasos no puede ser negativo.&quot;);</span>
+<span class="fc" id="L345">            return;</span>
+        }
+        
+<span class="fc" id="L348">        int index = adjustPos(wheel, wheels.size()) - 1;</span>
+<span class="fc" id="L349">        Wheel w = wheels.get(index);</span>
+        
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">        if (w.isLocked()) {</span>
+<span class="nc" id="L352">            notifyError(&quot;El eje &quot; + (index + 1) + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L353">            return; </span>
+        }
+
+<span class="fc bfc" id="L356" title="All 2 branches covered.">        for (int i = 0; i &lt; steps; i++) {</span>
+<span class="fc" id="L357">            w.rotate(1);</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">            if (this.isVisible) {</span>
+<span class="fc" id="L359">                refreshVisibility();</span>
+<span class="fc" id="L360">                pause();</span>
+            }
+        }
+<span class="fc bfc" id="L363" title="All 2 branches covered.">        if (steps &gt; 0) {</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">            w.finishSpin(index &gt; 0 ? wheels.get(index - 1) : null);</span>
+        }
+<span class="fc" id="L366">        refreshVisibility();</span>
+<span class="fc bfc" id="L367" title="All 2 branches covered.">        if (this.isVisible) {</span>
+<span class="fc" id="L368">            isJackpot();</span>
+        }
+<span class="fc" id="L370">        this.ok = true;</span>
+<span class="fc" id="L371">    }</span>
+    
+    /**
+     * Requisito 12: Dejar la máquina en una configuración dada de colores.
+     * La operación es atómica: primero se valida todo (tamaño, bloqueos,
+     * existencia de colores) y solo si todo es correcto se aplica. No es
+     * un giro (pone un color exacto), pero cada símbolo que queda visible
+     * cuenta como seleccionado.
+     * @param setSymbols Arreglo con el color deseado para cada rueda.
+     */
+    public void spin(String[] setSymbols) {
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L383">            notifyError(&quot;No hay ruedas registradas.&quot;);</span>
+<span class="nc" id="L384">            return;</span>
+        }
+<span class="pc bpc" id="L386" title="1 of 4 branches missed.">        if (setSymbols == null || setSymbols.length != wheels.size()) {</span>
+<span class="fc" id="L387">            notifyError(&quot;El número de colores no coincide con el número de ruedas.&quot;);</span>
+<span class="fc" id="L388">            return;</span>
+        }
+
+<span class="fc bfc" id="L391" title="All 2 branches covered.">        for (int i = 0; i &lt; wheels.size(); i++) {</span>
+<span class="fc" id="L392">            Wheel w = wheels.get(i);</span>
+<span class="pc bpc" id="L393" title="1 of 2 branches missed.">            if (w.isLocked()) {</span>
+<span class="nc" id="L394">                notifyError(&quot;El eje &quot; + (i + 1) + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L395">                return;</span>
+            }
+<span class="pc bpc" id="L397" title="1 of 2 branches missed.">            if (!w.hasColor(setSymbols[i])) {</span>
+<span class="nc" id="L398">                notifyError(&quot;Una rueda no contiene el color indicado.&quot;);</span>
+<span class="nc" id="L399">                return;</span>
+            }
+        }
+
+<span class="fc bfc" id="L403" title="All 2 branches covered.">        for (int i = 0; i &lt; wheels.size(); i++) {</span>
+<span class="fc" id="L404">            wheels.get(i).setVisibleColor(setSymbols[i]);</span>
+<span class="fc" id="L405">            wheels.get(i).select();</span>
+        }
+
+<span class="fc" id="L408">        this.ok = true;</span>
+<span class="fc" id="L409">        refreshVisibility();</span>
+<span class="fc" id="L410">    }</span>
+
+    /**
+     * Requisito 9: Intercambiar dos ruedas de posición manteniendo los ejes
+     * estáticos. Se intercambian las ruedas completas (su tipo, sus
+     * símbolos y su estado): cada una pasa al eje de la otra. Toda la
+     * lógica está en este método. Se rechaza si las posiciones no son
+     * válidas, si alguna rueda está bloqueada o si alguna no se deja
+     * intercambiar (la rebel, Requisito 17).
+     * @param wheel1 Posición de la primera rueda (desde 1).
+     * @param wheel2 Posición de la segunda rueda (desde 1).
+     */
+    public void swap(int wheel1, int wheel2) {
+<span class="fc bfc" id="L423" title="All 2 branches covered.">        if (wheels.size() &lt; 2) {</span>
+<span class="fc" id="L424">            notifyError(&quot;Se necesitan al menos dos ruedas para intercambiar.&quot;);</span>
+<span class="fc" id="L425">            return;</span>
+        }
+<span class="pc bpc" id="L427" title="4 of 8 branches missed.">        if (wheel1 &lt; 1 || wheel1 &gt; wheels.size() || wheel2 &lt; 1 || wheel2 &gt; wheels.size()) {</span>
+<span class="nc" id="L428">            notifyError(&quot;Posiciones de rueda inválidas.&quot;);</span>
+<span class="nc" id="L429">            return;</span>
+        }
+
+<span class="fc" id="L432">        Wheel w1 = wheels.get(wheel1 - 1);</span>
+<span class="fc" id="L433">        Wheel w2 = wheels.get(wheel2 - 1);</span>
+
+<span class="fc bfc" id="L435" title="All 2 branches covered.">        if (!w1.isSwappable()) {</span>
+<span class="fc" id="L436">            notifyError(&quot;La rueda &quot; + wheel1 + &quot; no se deja intercambiar.&quot;);</span>
+<span class="fc" id="L437">            return;</span>
+        }
+<span class="fc bfc" id="L439" title="All 2 branches covered.">        if (!w2.isSwappable()) {</span>
+<span class="fc" id="L440">            notifyError(&quot;La rueda &quot; + wheel2 + &quot; no se deja intercambiar.&quot;);</span>
+<span class="fc" id="L441">            return;</span>
+        }
+<span class="pc bpc" id="L443" title="1 of 2 branches missed.">        if (w1.isLocked()) {</span>
+<span class="nc" id="L444">            notifyError(&quot;El eje &quot; + wheel1 + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L445">            return;</span>
+        }
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">        if (w2.isLocked()) {</span>
+<span class="nc" id="L448">            notifyError(&quot;El eje &quot; + wheel2 + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L449">            return;</span>
+        }
+<span class="pc bpc" id="L451" title="1 of 2 branches missed.">        if (wheel1 == wheel2) {</span>
+<span class="nc" id="L452">            this.ok = true;</span>
+<span class="nc" id="L453">            return;</span>
+        }
+
+<span class="fc" id="L456">        int x1 = w1.getXPosition();</span>
+<span class="fc" id="L457">        int x2 = w2.getXPosition();</span>
+<span class="fc" id="L458">        wheels.set(wheel1 - 1, w2);</span>
+<span class="fc" id="L459">        wheels.set(wheel2 - 1, w1);</span>
+<span class="fc" id="L460">        w1.updateAxisPosition(x2);</span>
+<span class="fc" id="L461">        w2.updateAxisPosition(x1);</span>
+
+<span class="fc" id="L463">        this.ok = true;</span>
+<span class="fc" id="L464">        refreshVisibility();</span>
+<span class="fc" id="L465">    }</span>
+
+    /**
+     * Deja visible en una rueda específica el símbolo del color indicado.
+     * Rechazada si el eje está bloqueado. No es un giro, pero el símbolo
+     * cuenta como seleccionado (aunque ya estuviera visible).
+     * @param wheel Posición de la rueda (base 1).
+     * @param symbol Color del símbolo que se desea dejar visible.
+     */
+    public void placeSymbol(int wheel, String symbol) {
+<span class="pc bpc" id="L475" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L476">            notifyError(&quot;No hay ruedas registradas.&quot;);</span>
+<span class="nc" id="L477">            return;</span>
+        }
+<span class="fc" id="L479">        int index = adjustPos(wheel, wheels.size()) - 1;</span>
+<span class="fc" id="L480">        Wheel w = wheels.get(index);</span>
+
+<span class="pc bpc" id="L482" title="1 of 2 branches missed.">        if (w.isLocked()) {</span>
+<span class="nc" id="L483">            notifyError(&quot;El eje &quot; + (index + 1) + &quot; está bloqueado y no puede modificarse.&quot;);</span>
+<span class="nc" id="L484">            return;</span>
+        }
+
+<span class="fc" id="L487">        boolean found = w.setVisibleColor(symbol);</span>
+<span class="fc bfc" id="L488" title="All 2 branches covered.">        if (!found) {</span>
+<span class="fc" id="L489">            notifyError(&quot;La rueda no contiene ese color.&quot;);</span>
+<span class="fc" id="L490">            return;</span>
+        }
+<span class="fc" id="L492">        w.select();</span>
+<span class="fc" id="L493">        this.ok = true;</span>
+<span class="fc" id="L494">        refreshVisibility();</span>
+<span class="fc" id="L495">    }</span>
+
+    /**
+     * Requisito 5: Consultar los símbolos visibles de la máquina.
+     * @return Arreglo con el color que se ve en cada rueda: &quot;&quot; si su
+     *         símbolo está escondido (shy) y &quot;white&quot; si no tiene símbolos.
+     */
+    public String[] configuration() {
+<span class="fc" id="L503">        String[] config = new String[wheels.size()];</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">        for (int i = 0; i &lt; wheels.size(); i++) {</span>
+<span class="fc" id="L505">            config[i] = wheels.get(i).getShownColor();</span>
+        }
+<span class="fc" id="L507">        this.ok = true;</span>
+<span class="fc" id="L508">        return config;</span>
+    }
+
+    /**
+     * Consultar los colores de los símbolos REGISTRADOS en la máquina (los
+     * disponibles, no necesariamente los que se ven ahora). Funciona
+     * aunque todavía no haya ruedas.
+     * @return Arreglo con los colores registrados, en orden.
+     */
+    public String[] symbols() {
+<span class="fc" id="L518">        this.ok = true;</span>
+<span class="fc" id="L519">        return symbolColors.toArray(new String[0]);</span>
+    }
+    
+    /**
+     * Consultar la cantidad de colores DISTINTOS VISIBLES actualmente en
+     * la máquina (equivale al valor &quot;k&quot; del problema de la maratón: &quot;the
+     * number of distinct symbols in the sequence she can currently see&quot;).
+     * SlotMachineContest lo usa como medida para comparar posiciones, no
+     * como condición de Jackpot (para eso está isJackpot()). Un símbolo
+     * shy escondido no aporta color.
+     * @return Número de colores visibles diferentes en este momento.
+     */
+    public int distinctSymbols() {
+<span class="fc" id="L532">        Set&lt;String&gt; visible = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L533" title="All 2 branches covered.">        for (Wheel w : wheels) {</span>
+<span class="fc" id="L534">            Symbol active = w.getVisibleSymbol();</span>
+<span class="pc bpc" id="L535" title="1 of 4 branches missed.">            if (active != null &amp;&amp; !active.isHidden()) {</span>
+<span class="fc" id="L536">                visible.add(active.getColor().toLowerCase());</span>
+            }
+<span class="fc" id="L538">        }</span>
+<span class="fc" id="L539">        this.ok = true;</span>
+<span class="fc" id="L540">        return visible.size();</span>
+    }
+
+    /**
+     * Requisito 6: Consultar si la configuración VISIBLE es la ganadora (Jackpot).
+     * ok() queda en true si la consulta fue válida (2 o más ruedas, todas con
+     * símbolo visible), sin importar si el resultado es true o false; queda
+     * en false solo si la consulta no pudo evaluarse. Un símbolo shy
+     * escondido no aporta color, así que impide el Jackpot.
+     * @return true si todos los símbolos visibles coinciden.
+     */
+    public boolean isJackpot() {
+<span class="fc bfc" id="L552" title="All 2 branches covered.">        if (wheels.size() &lt; 2) {</span>
+<span class="fc" id="L553">            this.ok = false;</span>
+<span class="fc" id="L554">            return false;</span>
+        }
+<span class="fc bfc" id="L556" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">            if (wheel.getVisibleSymbol() == null) {</span>
+<span class="fc" id="L558">                this.ok = false;</span>
+<span class="fc" id="L559">                return false;</span>
+            }
+<span class="fc" id="L561">        }</span>
+
+<span class="fc" id="L563">        boolean jackpot = allSameColor();</span>
+<span class="fc" id="L564">        this.ok = true;</span>
+
+<span class="fc bfc" id="L566" title="All 4 branches covered.">        if (jackpot &amp;&amp; this.isVisible) {</span>
+<span class="fc" id="L567">            JOptionPane.showMessageDialog(null, &quot;¡ESTADO GANADOR (JACKPOT)!&quot;, &quot;Slot Machine&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+        }
+<span class="fc" id="L569">        return jackpot;</span>
+    }
+
+    /**
+     * Requisito 7a: Hacer visible el simulador en pantalla.
+     */
+    public void makeVisible() {
+<span class="fc" id="L576">        this.isVisible = true;</span>
+<span class="fc bfc" id="L577" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="fc" id="L578">            wheel.makeVisible();</span>
+<span class="fc" id="L579">        }</span>
+<span class="fc" id="L580">        refreshVisibility();</span>
+<span class="fc" id="L581">        this.ok = true;</span>
+<span class="fc" id="L582">    }</span>
+
+    /**
+     * Requisito 7b: Hacer invisible el simulador.
+     */
+    public void makeInvisible() {
+<span class="fc" id="L588">        this.isVisible = false;</span>
+<span class="fc" id="L589">        frame.makeInvisible();</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="fc" id="L591">            wheel.makeInvisible();</span>
+<span class="fc" id="L592">        }</span>
+<span class="fc" id="L593">        this.ok = true;</span>
+<span class="fc" id="L594">    }</span>
+
+    /**
+     * Requisito 8: Terminar el simulador: lo oculta. No llama a
+     * System.exit(0), porque eso cerraría también BlueJ y cortaría las
+     * pruebas de unidad que llaman exit() al terminar (por ejemplo las
+     * compartidas de SlotMachineCC4Test).
+     */
+    public void exit() {
+<span class="fc" id="L603">        makeInvisible();</span>
+<span class="fc" id="L604">        this.ok = true;</span>
+<span class="fc" id="L605">    }</span>
+    
+    /**
+     * Indica si se logró realizar la última operación exitosamente.
+     * @return true si la última operación fue exitosa, false en caso de error.
+     */
+    public boolean ok() {
+<span class="fc" id="L612">        return this.ok;</span>
+    }
+
+    /**
+     * Ajusta la posición de entrada para evitar índices fuera de rango.
+     * @param pos La posición dada por el usuario.
+     * @param max El tamaño máximo permitido.
+     * @return La posición ajustada en base 1.
+     */
+    private int adjustPos(int pos, int max) {
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">        if (pos &lt; 1) return 1;</span>
+<span class="fc bfc" id="L623" title="All 2 branches covered.">        if (pos &gt; max) return max;</span>
+<span class="fc" id="L624">        return pos;</span>
+    }
+
+    /**
+     * Actualiza la visualización: tamaño del lienzo, marco y símbolos. El
+     * marco se dibuja primero y los símbolos después, para que los
+     * cuadrados de color queden por encima del marco.
+     */
+    private void refreshVisibility() {
+<span class="fc bfc" id="L633" title="All 2 branches covered.">        if (this.isVisible) {</span>
+<span class="fc" id="L634">            ensureCanvasSize();</span>
+<span class="fc" id="L635">            updateFrame();</span>
+<span class="fc bfc" id="L636" title="All 2 branches covered.">            for (Wheel wheel : wheels) {</span>
+<span class="fc" id="L637">                wheel.showActive();</span>
+<span class="fc" id="L638">            }</span>
+        }
+<span class="fc" id="L640">    }</span>
+
+    /**
+     * Garantiza que el Canvas sea lo suficientemente grande para mostrar
+     * todas las ruedas actuales, sin importar cuántas sean.
+     */
+    private void ensureCanvasSize() {
+<span class="pc bpc" id="L647" title="1 of 2 branches missed.">        if (wheels.isEmpty()) return;</span>
+<span class="fc" id="L648">        int requiredWidth = 120 + (wheels.size() - 1) * AXIS_GAP;</span>
+<span class="fc" id="L649">        Canvas.getCanvas().ensureSize(requiredWidth, 250);</span>
+<span class="fc" id="L650">    }</span>
+
+    /**
+     * Ajusta el marco para que cubra todas las ruedas y le pone el color
+     * fijo, o verde si la configuración visible es Jackpot. Si no hay
+     * ruedas, el marco se oculta.
+     */
+    private void updateFrame() {
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">        if (wheels.isEmpty()) {</span>
+<span class="nc" id="L659">            frame.makeInvisible();</span>
+<span class="nc" id="L660">            return;</span>
+        }
+<span class="fc" id="L662">        int width = (wheels.size() - 1) * AXIS_GAP + 50;</span>
+<span class="fc" id="L663">        frame.changeSize(50, width);</span>
+<span class="fc bfc" id="L664" title="All 2 branches covered.">        frame.changeColor(allSameColor() ? JACKPOT_COLOR : FRAME_COLOR);</span>
+<span class="fc" id="L665">        frame.makeVisible();</span>
+<span class="fc" id="L666">    }</span>
+
+    /**
+     * Compara los colores visibles de todas las ruedas, sin efectos
+     * secundarios (no cambia ok() ni muestra mensajes). La usan
+     * isJackpot() y updateFrame(). Un símbolo shy escondido no muestra
+     * color, así que no coincide con ninguno.
+     * @return true si hay al menos 2 ruedas y todas muestran el mismo color.
+     */
+    private boolean allSameColor() {
+<span class="pc bpc" id="L676" title="1 of 2 branches missed.">        if (wheels.size() &lt; 2) return false;</span>
+<span class="fc" id="L677">        Symbol first = wheels.get(0).getVisibleSymbol();</span>
+<span class="pc bpc" id="L678" title="1 of 2 branches missed.">        if (first == null) return false;</span>
+<span class="fc bfc" id="L679" title="All 2 branches covered.">        for (Wheel wheel : wheels) {</span>
+<span class="fc" id="L680">            Symbol active = wheel.getVisibleSymbol();</span>
+<span class="pc bpc" id="L681" title="1 of 4 branches missed.">            if (active == null || active.isHidden()</span>
+<span class="fc bfc" id="L682" title="All 2 branches covered.">                    || !first.getColor().equalsIgnoreCase(active.getColor())) {</span>
+<span class="fc" id="L683">                return false;</span>
+            }
+<span class="fc" id="L685">        }</span>
+<span class="fc" id="L686">        return true;</span>
+    }
+
+    /**
+     * Muestra un mensaje de error y marca el estado de la máquina como falso.
+     * @param msg El mensaje de error a mostrar.
+     */
+    private void notifyError(String msg) {
+<span class="fc" id="L694">        this.ok = false;</span>
+<span class="pc bpc" id="L695" title="1 of 2 branches missed.">        if (this.isVisible) {</span>
+<span class="nc" id="L696">            JOptionPane.showMessageDialog(null, msg, &quot;Error Slot Machine&quot;, JOptionPane.ERROR_MESSAGE);</span>
+        }
+<span class="fc" id="L698">    }</span>
+
+    /**
+     * Alinea estructuralmente todos los ejes (ruedas) de la máquina.
+     * Se debe llamar cada vez que la estructura de ejes cambie.
+     */
+    private void recalculateAxes() {
+<span class="fc bfc" id="L705" title="All 2 branches covered.">        for (int i = 0; i &lt; wheels.size(); i++) {</span>
+<span class="fc" id="L706">            int correctX = 50 + (i * AXIS_GAP);</span>
+<span class="fc" id="L707">            wheels.get(i).updateAxisPosition(correctX);</span>
+        }
+<span class="fc" id="L709">    }</span>
+
+    /**
+     * Pausa la ejecución brevemente para animar los giros en el Canvas.
+     * Se usa un valor bajo (25ms) porque spin(wheel,steps) puede
+     * ejecutarse cientos o miles de veces seguidas durante simulate().
+     */
+    private void pause() {
+        try {
+<span class="fc" id="L718">            Thread.sleep(25); </span>
+<span class="nc" id="L719">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L720">            Thread.currentThread().interrupt();</span>
+<span class="fc" id="L721">        }</span>
+<span class="fc" id="L722">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

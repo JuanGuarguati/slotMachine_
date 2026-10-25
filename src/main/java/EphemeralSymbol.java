@@ -1,0 +1,90 @@
+import shapes.Circle;
+
+/**
+ * Símbolo efímero: un círculo que se encoge en cada giro hasta quedar
+ * como un punto.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public class EphemeralSymbol extends Symbol {
+
+    /** Píxeles que pierde el diámetro en cada giro. */
+    private static final int SHRINK_STEP = 4;
+
+    /** Diámetro final: el símbolo queda como un punto. */
+    private static final int POINT_SIZE = 2;
+
+    /**
+     * La misma figura que Symbol.shape, vista como Circle para poder
+     * cambiarle el diámetro (changeSize de Circle recibe un solo valor).
+     */
+    private Circle circle;
+    private int diameter;
+
+    /**
+     * Construye un símbolo efímero del tamaño completo de la celda.
+     * @param color Color del símbolo.
+     * @param x Coordenada X del eje de la rueda.
+     * @param y Coordenada Y de referencia de la rueda.
+     */
+    public EphemeralSymbol(String color, int x, int y) {
+        super(color);
+        diameter = SIZE;
+        circle = new Circle();
+        circle.changeSize(diameter);
+        circle.changeColor(color);
+        circle.moveHorizontal(x - 10);
+        circle.moveVertical(y - 50);
+        shape = circle;
+    }
+
+    /**
+     * Su rueda giró: el círculo se encoge SHRINK_STEP píxeles, sin bajar
+     * de POINT_SIZE. Se mueve la mitad de lo que se encoge para que siga
+     * centrado en la celda.
+     */
+    @Override
+    public void spun() {
+        if (diameter <= POINT_SIZE) return;
+        int newDiameter = Math.max(POINT_SIZE, diameter - SHRINK_STEP);
+        int offset = (diameter - newDiameter) / 2;
+        diameter = newDiameter;
+        circle.changeSize(diameter);
+        circle.moveHorizontal(offset);
+        circle.moveVertical(offset);
+    }
+
+    /**
+     * Consulta el diámetro actual del círculo.
+     * @return Diámetro en píxeles.
+     */
+    public int getDiameter() {
+        return diameter;
+    }
+
+    /**
+     * Consulta si el símbolo ya quedó reducido a un punto.
+     * @return true si su diámetro es el mínimo.
+     */
+    public boolean isPoint() {
+        return diameter == POINT_SIZE;
+    }
+
+    /**
+     * Un símbolo efímero no cambia al ser seleccionado.
+     */
+    @Override
+    public void selected() {
+        // El efímero solo reacciona al giro.
+    }
+
+    /**
+     * Un símbolo efímero nunca se esconde.
+     * @param hidden Se ignora.
+     */
+    @Override
+    public void setHidden(boolean hidden) {
+        // El efímero no tiene estado escondido.
+    }
+}

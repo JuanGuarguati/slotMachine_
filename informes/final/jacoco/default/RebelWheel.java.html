@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RebelWheel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">RebelWheel.java</span></div><h1>RebelWheel.java</h1><pre class="source lang-java linenums">import shapes.Rectangle;
+
+/**
+ * Rueda rebelde: no se deja bloquear, intercambiar ni eliminar.
+ *
+ * @author Juan David Guarguati Guarguati, Juan Pablo Suárez Rubiano
+ * @version 5.0
+ */
+public class RebelWheel extends Wheel {
+
+    /**
+     * Construye una rueda rebelde.
+     * @param xPosition La coordenada X del eje.
+     */
+    public RebelWheel(int xPosition) {
+<span class="fc" id="L16">        super(xPosition);</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * La rueda rebelde no se deja bloquear.
+     * @return false siempre.
+     */
+    @Override
+    public boolean isLockable() {
+<span class="fc" id="L25">        return false;</span>
+    }
+
+    /**
+     * La rueda rebelde no se deja intercambiar.
+     * @return false siempre.
+     */
+    @Override
+    public boolean isSwappable() {
+<span class="fc" id="L34">        return false;</span>
+    }
+
+    /**
+     * La rueda rebelde no se deja eliminar.
+     * @return false siempre.
+     */
+    @Override
+    public boolean isRemovable() {
+<span class="fc" id="L43">        return false;</span>
+    }
+
+    /**
+     * Marca de la rueda rebelde: barra roja de 30x12.
+     * @param marker La marca a la que se le da estilo.
+     */
+    @Override
+    protected void styleMarker(Rectangle marker) {
+<span class="fc" id="L52">        marker.changeSize(12, 30);</span>
+<span class="fc" id="L53">        marker.changeColor(&quot;red&quot;);</span>
+<span class="fc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Canvas.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SlotMachine</a> &gt; <a href="index.source.html" class="el_package">shapes</a> &gt; <span class="el_source">Canvas.java</span></div><h1>Canvas.java</h1><pre class="source lang-java linenums">package shapes;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
+
+/**
+ * Canvas is a class to allow for simple graphical drawing on a canvas.
+ * This is a modification of the general purpose Canvas, specially made for
+ * the BlueJ &quot;shapes&quot; example.
+ *
+ * @author: Bruce Quig
+ * @author: Michael Kolling (mik)
+ *
+ * @version: 2.0 (2026-09) - paleta de colores completa, fondo dinámico
+ *           y redimensionamiento del lienzo.
+ */
+public class Canvas{
+    // Note: The implementation of this class (specifically the handling of
+    // shape identity and colors) is slightly more complex than necessary. This
+    // is done on purpose to keep the interface and instance fields of the
+    // shape objects in this project clean and simple for educational purposes.
+
+    private static Canvas canvasSingleton;
+
+    /**
+     * Factory method to get the canvas singleton object.
+     */
+    public static Canvas getCanvas(){
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if(canvasSingleton == null) {</span>
+<span class="fc" id="L32">            canvasSingleton = new Canvas(&quot;BlueJ Shapes Demo&quot;, 300, 300, </span>
+                                         Color.white);
+        }
+<span class="fc" id="L35">        canvasSingleton.setVisible(true);</span>
+<span class="fc" id="L36">        return canvasSingleton;</span>
+    }
+
+    //  ----- instance part -----
+
+    private JFrame frame;
+    private CanvasPane canvas;
+    private Graphics2D graphic;
+    private Color backgroundColour;
+    private Image canvasImage;
+    private List &lt;Object&gt; objects;
+    private HashMap &lt;Object,ShapeDescription&gt; shapes;
+    
+    /**
+     * Create a Canvas.
+     * @param title  title to appear in Canvas Frame
+     * @param width  the desired width for the canvas
+     * @param height  the desired height for the canvas
+     * @param bgClour  the desired background colour of the canvas
+     */
+<span class="fc" id="L56">    private Canvas(String title, int width, int height, Color bgColour){</span>
+<span class="fc" id="L57">        frame = new JFrame();</span>
+<span class="fc" id="L58">        canvas = new CanvasPane();</span>
+<span class="fc" id="L59">        frame.setContentPane(canvas);</span>
+<span class="fc" id="L60">        frame.setTitle(title);</span>
+<span class="fc" id="L61">        canvas.setPreferredSize(new Dimension(width, height));</span>
+<span class="fc" id="L62">        backgroundColour = bgColour;</span>
+<span class="fc" id="L63">        frame.pack();</span>
+<span class="fc" id="L64">        objects = new ArrayList &lt;Object&gt;();</span>
+<span class="fc" id="L65">        shapes = new HashMap &lt;Object,ShapeDescription&gt;();</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Set the canvas visibility and brings canvas to the front of screen
+     * when made visible. This method can also be used to bring an already
+     * visible canvas to the front of other windows.
+     * @param visible  boolean value representing the desired visibility of
+     * the canvas (true or false) 
+     */
+    public void setVisible(boolean visible){
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if(graphic == null) {</span>
+            // first time: instantiate the offscreen image and fill it with
+            // the background colour
+<span class="fc" id="L79">            Dimension size = canvas.getSize();</span>
+<span class="fc" id="L80">            canvasImage = canvas.createImage(size.width, size.height);</span>
+<span class="fc" id="L81">            graphic = (Graphics2D)canvasImage.getGraphics();</span>
+<span class="fc" id="L82">            graphic.setColor(backgroundColour);</span>
+<span class="fc" id="L83">            graphic.fillRect(0, 0, size.width, size.height);</span>
+<span class="fc" id="L84">            graphic.setColor(Color.black);</span>
+        }
+<span class="fc" id="L86">        frame.setVisible(visible);</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Draw a given shape onto the canvas.
+     * @param  referenceObject  an object to define identity for this shape
+     * @param  color            the color of the shape
+     * @param  shape            the shape object to be drawn on the canvas
+     */
+     // Note: this is a slightly backwards way of maintaining the shape
+     // objects. It is carefully designed to keep the visible shape interfaces
+     // in this project clean and simple for educational purposes.
+    public void draw(Object referenceObject, String color, java.awt.Shape shape){
+<span class="fc" id="L99">        objects.remove(referenceObject);   // just in case it was already there</span>
+<span class="fc" id="L100">        objects.add(referenceObject);      // add at the end</span>
+<span class="fc" id="L101">        shapes.put(referenceObject, new ShapeDescription(shape, color));</span>
+<span class="fc" id="L102">        redraw();</span>
+<span class="fc" id="L103">    }</span>
+ 
+    /**
+     * Erase a given shape's from the screen.
+     * @param  referenceObject  the shape object to be erased 
+     */
+    public void erase(Object referenceObject){
+<span class="nc" id="L110">        objects.remove(referenceObject);   // just in case it was already there</span>
+<span class="nc" id="L111">        shapes.remove(referenceObject);</span>
+<span class="nc" id="L112">        redraw();</span>
+<span class="nc" id="L113">    }</span>
+
+    /**
+     * Set the foreground colour of the Canvas.
+     * @param  colorString   the new colour name for the foreground of the Canvas 
+     */
+    public void setForegroundColor(String colorString){
+<span class="fc" id="L120">        graphic.setColor(resolveColor(colorString));</span>
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Cambia dinámicamente el color de fondo del lienzo y vuelve a dibujar
+     * todo lo que esté actualmente en pantalla con el nuevo fondo.
+     * No recrea el Canvas ni afecta draw()/erase()/redraw()/setVisible().
+     * @param colorString nombre del color (misma paleta que setForegroundColor).
+     */
+    public void setBackgroundColor(String colorString){
+<span class="nc" id="L130">        backgroundColour = resolveColor(colorString);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (graphic != null) {</span>
+<span class="nc" id="L132">            redraw();</span>
+        }
+<span class="nc" id="L134">    }</span>
+
+    /**
+     * Garantiza que el lienzo tenga, como mínimo, el ancho y alto indicados.
+     * Si ya es igual o más grande, no hace nada. Útil para acomodar una
+     * cantidad dinámica de ruedas sin recrear el Canvas.
+     * @param width  ancho mínimo requerido.
+     * @param height alto mínimo requerido.
+     */
+    public void ensureSize(int width, int height){
+<span class="fc" id="L144">        Dimension current = canvas.getPreferredSize();</span>
+<span class="fc" id="L145">        int newWidth = Math.max(current.width, width);</span>
+<span class="fc" id="L146">        int newHeight = Math.max(current.height, height);</span>
+
+<span class="pc bpc" id="L148" title="2 of 4 branches missed.">        if (newWidth == current.width &amp;&amp; newHeight == current.height) {</span>
+<span class="fc" id="L149">            return;</span>
+        }
+
+<span class="nc" id="L152">        canvas.setPreferredSize(new Dimension(newWidth, newHeight));</span>
+<span class="nc" id="L153">        frame.pack();</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (graphic != null) {</span>
+<span class="nc" id="L156">            Dimension size = canvas.getSize();</span>
+<span class="nc" id="L157">            Image newImage = canvas.createImage(size.width, size.height);</span>
+<span class="nc" id="L158">            Graphics2D newGraphic = (Graphics2D) newImage.getGraphics();</span>
+<span class="nc" id="L159">            newGraphic.setColor(backgroundColour);</span>
+<span class="nc" id="L160">            newGraphic.fillRect(0, 0, size.width, size.height);</span>
+<span class="nc" id="L161">            canvasImage = newImage;</span>
+<span class="nc" id="L162">            graphic = newGraphic;</span>
+<span class="nc" id="L163">            redraw();</span>
+        }
+<span class="nc" id="L165">    }</span>
+
+    /**
+     * Traduce el nombre de un color de la paleta del proyecto a un
+     * java.awt.Color concreto. Soporta exactamente los 15 colores usados
+     * por SlotMachine.PALETTE.
+     * @param colorString nombre del color en minúsculas o no.
+     * @return el Color correspondiente (negro si no se reconoce).
+     */
+    private Color resolveColor(String colorString){
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (colorString == null) {</span>
+<span class="nc" id="L176">            return Color.black;</span>
+        }
+<span class="pc bpc" id="L178" title="13 of 16 branches missed.">        switch (colorString.toLowerCase()) {</span>
+<span class="fc" id="L179">            case &quot;red&quot;:       return Color.red;</span>
+<span class="nc" id="L180">            case &quot;blue&quot;:      return Color.blue;</span>
+<span class="nc" id="L181">            case &quot;green&quot;:     return Color.green;</span>
+<span class="nc" id="L182">            case &quot;yellow&quot;:    return Color.yellow;</span>
+<span class="nc" id="L183">            case &quot;purple&quot;:    return new Color(128, 0, 128);</span>
+<span class="nc" id="L184">            case &quot;orange&quot;:    return Color.orange;</span>
+<span class="nc" id="L185">            case &quot;cyan&quot;:      return Color.cyan;</span>
+<span class="nc" id="L186">            case &quot;magenta&quot;:   return Color.magenta;</span>
+<span class="nc" id="L187">            case &quot;black&quot;:     return Color.black;</span>
+<span class="nc" id="L188">            case &quot;white&quot;:     return Color.white;</span>
+<span class="fc" id="L189">            case &quot;gray&quot;:      return Color.gray;</span>
+<span class="nc" id="L190">            case &quot;pink&quot;:      return Color.pink;</span>
+<span class="nc" id="L191">            case &quot;darkgray&quot;:  return Color.darkGray;</span>
+<span class="nc" id="L192">            case &quot;lightgray&quot;: return Color.lightGray;</span>
+<span class="nc" id="L193">            case &quot;brown&quot;:     return new Color(139, 69, 19);</span>
+            default:
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                if (colorString.startsWith(&quot;#&quot;)) {</span>
+<span class="fc" id="L196">                    return Color.decode(colorString);</span>
+                }
+<span class="nc" id="L198">                return Color.black;</span>
+        }
+    }
+
+    /**
+     * Wait for a specified number of milliseconds before finishing.
+     * This provides an easy way to specify a small delay which can be
+     * used when producing animations.
+     * @param  milliseconds  the number 
+     */
+    public void wait(int milliseconds){
+        try{
+<span class="fc" id="L210">            Thread.sleep(milliseconds);</span>
+<span class="nc" id="L211">        } catch (Exception e){</span>
+            // ignoring exception at the moment
+<span class="fc" id="L213">        }</span>
+<span class="fc" id="L214">    }</span>
+
+    /**
+     * Redraw ell shapes currently on the Canvas.
+     */
+    private void redraw(){
+<span class="fc" id="L220">        erase();</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for(Iterator i=objects.iterator(); i.hasNext(); ) {</span>
+<span class="fc" id="L222">                       shapes.get(i.next()).draw(graphic);</span>
+        }
+<span class="fc" id="L224">        canvas.repaint();</span>
+<span class="fc" id="L225">    }</span>
+       
+    /**
+     * Erase the whole canvas. (Does not repaint.)
+     */
+    private void erase(){
+<span class="fc" id="L231">        Color original = graphic.getColor();</span>
+<span class="fc" id="L232">        graphic.setColor(backgroundColour);</span>
+<span class="fc" id="L233">        Dimension size = canvas.getSize();</span>
+<span class="fc" id="L234">        graphic.fill(new java.awt.Rectangle(0, 0, size.width, size.height));</span>
+<span class="fc" id="L235">        graphic.setColor(original);</span>
+<span class="fc" id="L236">    }</span>
+
+
+    /************************************************************************
+     * Inner class CanvasPane - the actual canvas component contained in the
+     * Canvas frame. This is essentially a JPanel with added capability to
+     * refresh the image drawn on it.
+     */
+<span class="fc" id="L244">    private class CanvasPane extends JPanel{</span>
+        public void paint(Graphics g){
+<span class="fc" id="L246">            g.drawImage(canvasImage, 0, 0, null);</span>
+<span class="fc" id="L247">        }</span>
+    }
+    
+    /************************************************************************
+     * Inner class CanvasPane - the actual canvas component contained in the
+     * Canvas frame. This is essentially a JPanel with added capability to
+     * refresh the image drawn on it.
+     */
+    private class ShapeDescription{
+        private java.awt.Shape shape;
+        private String colorString;
+
+<span class="fc" id="L259">        public ShapeDescription(java.awt.Shape shape, String color){</span>
+<span class="fc" id="L260">            this.shape = shape;</span>
+<span class="fc" id="L261">            colorString = color;</span>
+<span class="fc" id="L262">        }</span>
+
+        public void draw(Graphics2D graphic){
+<span class="fc" id="L265">            setForegroundColor(colorString);</span>
+<span class="fc" id="L266">            graphic.draw(shape);</span>
+<span class="fc" id="L267">            graphic.fill(shape);</span>
+<span class="fc" id="L268">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
